@@ -1,0 +1,26 @@
+[
+  {
+    "sl_no": 1,
+    "code": "1101",
+    "name": "CBC (Govt. Rate)",
+    "price": 400
+  },
+  {
+    "sl_no": 2,
+    "code": "1102",
+    "name": "Hb,ESR,TC,DC",
+    "price": 400
+  },
+  {
+    "sl_no": 3,
+    "code": "1103",
+    "name": "HB%",
+    "price": 300
+  },
+  {
+    "sl_no": 549,
+    "code": "6108",
+    "name": "Urgent (Report)",
+    "price": 50
+  }
+]

@@ -1,0 +1,19 @@
+/* @font-face {
+    font-family: "myFirstFont";
+    src:("/Fonts/LiAlinurSpandanANSIV2-Regular.ttf");
+} */
+
+/* @font-face {
+    font-family: 'myFirstFont';
+    src: local('myFirstFont'), url(./fonts/LiAlinurSpandanANSIV1-Regular.ttf) format('truetype');
+  }
+.mahi{
+    font-family: "myFirstFont";
+    font-size: 20px;
+} */
+
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400&family=Roboto+Mono:wght@200;300;400&family=Roboto:wght@300;400&display=swap");
+
+.mahi{
+    font-family: "Hind Siliguri", sans-serif;
+}
