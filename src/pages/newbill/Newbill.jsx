@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { v4 as uuidv4 } from "uuid";
 import { createBill } from "../../api/billApi.js";
 import { getReferences } from "../../api/referralManagerApi.js";
-import Navbar from "../../components/Navbar/Navbar";
+import Navbar from "../../components/navbar/Navbar.jsx";
 import PrintableBill from "../../components/printreceipt/PrintableBill";
 
 const Newbill = () => {
