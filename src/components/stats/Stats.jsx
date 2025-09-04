@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { fetchMonthlyStats } from "../../api/billApi";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useEffect, useState } from "react";
+import { fetchMonthlyStats } from "../../api/billApi";
 
 const Stats = () => {
   const [month, setMonth] = useState(() => {
@@ -19,7 +19,7 @@ const Stats = () => {
     if (!month) return;
 
     setLoading(true);
-    console.log("Fetching stats for month:", month);
+    // console.log("Fetching stats for month:", month);
 
     fetchMonthlyStats(month)
       .then((res) => {
@@ -44,31 +44,35 @@ const Stats = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    
+
     // Title
     doc.setFontSize(18);
     doc.text(`Monthly Report - ${month}`, 14, 15);
-    
+
     // Summary Section
     doc.setFontSize(12);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 25);
-    
+
     // Total Monthly Amount
     doc.setFontSize(14);
-    doc.text(`Total Monthly Amount: ${totalMonthlyAmount.toLocaleString()}Tk`, 14, 35);
-    
+    doc.text(
+      `Total Monthly Amount: ${totalMonthlyAmount.toLocaleString()}Tk`,
+      14,
+      35
+    );
+
     // Total by Type Table
     doc.setFontSize(12);
     doc.text("Total by Bill Type:", 14, 45);
-    
+
     const typeData = totalByType.map(({ billType, totalByType }) => [
       billType || "Unknown",
-      `${totalByType.toLocaleString()}Tk`
+      `${totalByType.toLocaleString()}Tk`,
     ]);
-    
+
     autoTable(doc, {
       startY: 50,
-      head: [['Bill Type', 'Amount']],
+      head: [["Bill Type", "Amount"]],
       body: typeData,
       styles: {
         fontSize: 10,
@@ -77,34 +81,37 @@ const Stats = () => {
       headStyles: {
         fillColor: [41, 128, 185],
         textColor: 255,
-        fontStyle: 'bold'
+        fontStyle: "bold",
       },
       columnStyles: {
-        1: { halign: 'right' }
-      }
+        1: { halign: "right" },
+      },
     });
-    
+
     // Daily Totals Section
     doc.addPage();
     doc.setFontSize(14);
     doc.text("Daily Breakdown", 14, 15);
-    
+
     const dailyData = dailyTotals.map(({ day, totalPerDay }) => {
       const date = new Date(day).toLocaleDateString();
-      const dailyTypes = (dailyByTypeMap[day] || []).map(({ billType, totalPerDayByType }) => 
-        `${billType || 'Unknown'}: ${totalPerDayByType.toLocaleString()}Tk`
-      ).join('\n');
-      
+      const dailyTypes = (dailyByTypeMap[day] || [])
+        .map(
+          ({ billType, totalPerDayByType }) =>
+            `${billType || "Unknown"}: ${totalPerDayByType.toLocaleString()}Tk`
+        )
+        .join("\n");
+
       return [
         date,
         `${totalPerDay.toLocaleString()}Tk`,
-        { content: dailyTypes, styles: { fontSize: 8, cellPadding: 2 } }
+        { content: dailyTypes, styles: { fontSize: 8, cellPadding: 2 } },
       ];
     });
-    
+
     autoTable(doc, {
       startY: 25,
-      head: [['Date', 'Total', 'Breakdown by Type']],
+      head: [["Date", "Total", "Breakdown by Type"]],
       body: dailyData,
       styles: {
         fontSize: 10,
@@ -113,17 +120,17 @@ const Stats = () => {
       headStyles: {
         fillColor: [41, 128, 185],
         textColor: 255,
-        fontStyle: 'bold'
+        fontStyle: "bold",
       },
       columnStyles: {
-        1: { halign: 'right' },
-        2: { cellWidth: 80 }
+        1: { halign: "right" },
+        2: { cellWidth: 80 },
       },
       bodyStyles: {
-        minCellHeight: 20
-      }
+        minCellHeight: 20,
+      },
     });
-    
+
     // Save the PDF
     doc.save(`Monthly_Report_${month}.pdf`);
   };
@@ -149,8 +156,8 @@ const Stats = () => {
           disabled={loading || dailyTotals.length === 0}
           className={`px-4 py-2 rounded-md text-white font-medium ${
             loading || dailyTotals.length === 0
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
           Download PDF Report
@@ -165,7 +172,7 @@ const Stats = () => {
         <div className="flex flex-col md:flex-row md:space-x-8">
           {/* Left: Daily Totals Table with nested daily by type */}
           <div className="flex-1 overflow-x-auto max-w-full md:max-w-3xl">
-            <h3 className="text-2xl font-bold mb-4 px-6 pt-6">Daily Totals</h3>
+            <h3 className="text-2xl font-bold mb-4 px-6 pt-6"> {new Date().toLocaleString("default", { month: "long" })} - Daily Totals</h3>
             <table className="min-w-full divide-y divide-gray-300">
               <thead className="bg-gray-200">
                 <tr>
@@ -234,12 +241,14 @@ const Stats = () => {
           >
             {/* Total Monthly Amount */}
             <div className="bg-blue-100 text-blue-900 rounded-xl p-6 shadow-lg border border-blue-300">
-              <h3 className="text-xl font-bold mb-2">Total This Month</h3>
+              <h3 className="text-xl mb-2">
+                <span className="font-semibold">Total Sales for </span> 
+                <span className="font-bold">
+                  {new Date().toLocaleString("default", { month: "long" })}
+                </span>
+              </h3>
               <p className="text-3xl font-extrabold">
                 ৳{totalMonthlyAmount.toLocaleString()}
-              </p>
-              <p className="text-sm text-blue-700 mt-2">
-                Current month's total amount
               </p>
             </div>
 

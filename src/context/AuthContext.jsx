@@ -1,47 +1,44 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { checkAuth } from "../api/loginApi";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      const isAuth = checkAuth();
-      if (isAuth) {
-        const storedUser = localStorage.getItem("user");
-        setUser(JSON.parse(storedUser));
+    const initializeAuth = () => {
+      const token = localStorage.getItem("token");
+      // console.log("Token from localStorage:", token);
+      if (token) {
+        setIsAuthenticated(true);
       }
-      setIsAuthenticated(isAuth);
       setLoading(false);
     };
 
     initializeAuth();
-  }, []);
+  }, [isAuthenticated]);
 
-  const login = (userData) => {
-    setUser(userData.user);
+  const login = (userData, token) => {
+    // Save both token and user in localStorage
+    localStorage.setItem("token", token);
     setIsAuthenticated(true);
   };
 
   const logout = () => {
-    setUser(null);
+    localStorage.removeItem("token");
+
     setIsAuthenticated(false);
-    localStorage.clear();
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
+        // user,
         isAuthenticated,
         loading,
         login,
         logout,
-        setUser,
       }}
     >
       {children}
