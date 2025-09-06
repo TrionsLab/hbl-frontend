@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuthHeaders } from "../helpers/authHeaders";
+import { getAuthHeaders } from "../helpers/authHelpers";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 

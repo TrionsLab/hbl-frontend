@@ -1,8 +1,8 @@
-import { getUserRoleFromLocalStorage } from "../../helpers/getUserRoleFromLocalStorage";
+import { getUserRoleFromLocalStorage } from "../../helpers/authHelpers";
 
 import { Link } from "react-router-dom";
 import { logout } from "../../api/authService";
-import logo from "../../assets/logo.png";
+import logo from "/assets/logo.png";
 const Navbar = () => {
   const userRole = getUserRoleFromLocalStorage()?.role;
   return (

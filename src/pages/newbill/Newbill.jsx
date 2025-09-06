@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
 
 import ReactDOM from "react-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -9,21 +8,7 @@ import { fetchTests } from "../../api/testApi";
 import Navbar from "../../components/Navbar/Navbar";
 import PrintableBill from "../../components/printreceipt/PrintableBill";
 
-// import { useAuth } from "../../context/AuthContext";
-
 const Newbill = () => {
-  // const {isAuthenticated } = useAuth();
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   // If user is logged in, redirect to dashboard
-  //   setTimeout(() => {
-
-  //   if (!isAuthenticated) {
-  //     alert("You must be logged in to create a new bill.");
-  //     navigate("/login");
-  //   }}, 5000);
-  // }, [isAuthenticated, navigate]);
   const [userInfo, setUserInfo] = useState(null);
 
   const [references, setReferences] = useState([]);
@@ -66,7 +51,6 @@ const Newbill = () => {
     try {
       const data = await fetchTests();
       setTests(data);
-      // console.log(("xxx", data));
     } catch (err) {
       console.log("Failed to load tests");
     } finally {

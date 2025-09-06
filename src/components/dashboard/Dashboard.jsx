@@ -5,7 +5,7 @@ import { archiveBill, clearBillDue, fetchBillsByDate } from "../../api/billApi";
 import BillsTable from "../billsTable/BillsTable";
 import PrintableBill from "../printreceipt/PrintableBill";
 import ReferralModal from "../referralModal/ReferralModal";
-import { formatToDDMMYY } from "../../helpers/formatDate";
+import { formatToDDMMYY } from "../../helpers/commonHelpers";
 
 const Dashboard = () => {
   const [bills, setBills] = useState([]);

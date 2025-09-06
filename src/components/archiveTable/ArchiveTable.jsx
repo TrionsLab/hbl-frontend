@@ -1,5 +1,5 @@
 // import deleteIcon from "../../assets/delete.png";
-import restoreIcon from "../../assets/restore.png";
+import restoreIcon from "/assets/restore.png";
 
 const ArchiveTable = ({
   bills,

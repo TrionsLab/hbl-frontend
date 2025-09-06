@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { logout } from "../../api/authService";
-import logo from "../../assets/logo.png";
+import logo from "/assets/logo.png";
 import Dashboard from "../../components/dashboard/Dashboard";
 import Reception from "../../pages/reception/Reception";
 import Archive from "../archive/Archive";

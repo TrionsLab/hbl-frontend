@@ -1,5 +1,5 @@
 // components/PrintableBill.jsx
-import logo from "../../assets/logo.png";
+import logo from "/assets/logo.png";
 
 const PrintableBill = ({ bill, selectedTests }) => {
   const testsArray = Array.isArray(selectedTests)

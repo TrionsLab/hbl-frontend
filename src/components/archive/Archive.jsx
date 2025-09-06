@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { restoreBill, deleteBill, fetchArchivedBills } from "../../api/billApi";
-import { formatToDDMMYY } from "../../helpers/formatDate";
+import { formatToDDMMYY } from "../../helpers/commonHelpers";
 import ArchiveTable from "../archiveTable/ArchiveTable";
 
 const Archive = () => {

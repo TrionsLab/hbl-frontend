@@ -1,8 +1,8 @@
 import { Pagination } from "antd";
 import { useState } from "react";
-import deleteIcon from "../../assets/delete.png";
-import printIcon from "../../assets/printer.png";
-import { getUserRoleFromLocalStorage } from "../../helpers/getUserRoleFromLocalStorage";
+import deleteIcon from "/assets/delete.png";
+import printIcon from "/assets/printer.png";
+import { getUserRoleFromLocalStorage } from "../../helpers/authHelpers";
 
 const BillsTable = ({
   bills,

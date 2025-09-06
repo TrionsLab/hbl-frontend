@@ -9,7 +9,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = () => {
       const token = localStorage.getItem("token");
-      // console.log("Token from localStorage:", token);
       if (token) {
         setIsAuthenticated(true);
       }
@@ -20,7 +19,6 @@ export const AuthProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const login = (userData, token) => {
-    // Save both token and user in localStorage
     localStorage.setItem("token", token);
     setIsAuthenticated(true);
   };
@@ -34,7 +32,6 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        // user,
         isAuthenticated,
         loading,
         login,
