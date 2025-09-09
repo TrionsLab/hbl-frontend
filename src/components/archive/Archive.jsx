@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { restoreBill, deleteBill, fetchArchivedBills } from "../../api/billApi";
 import { formatToDDMMYY } from "../../helpers/commonHelpers";
 import ArchiveTable from "../archiveTable/ArchiveTable";
+import SideNavbar from "../common/SideNavbar";
 
 const Archive = () => {
   const [bills, setBills] = useState([]);
@@ -42,28 +43,33 @@ const Archive = () => {
   const handleRestore = async (id) => {
     if (!window.confirm("Are you sure you want to restore this bill?")) return;
     try {
-      await restoreBill(id); // Assuming archiveBill is the API to restore
+      await restoreBill(id);
       setBills((prev) => prev.filter((b) => b.id !== id));
     } catch (err) {
       alert("Error restoring bill: " + err.message);
     }
   };
 
-  if (loading)
-    return <div className="text-center mt-10">Loading archived bills...</div>;
-  if (error)
-    return <div className="text-center mt-10 text-red-600">{error}</div>;
-  if (bills.length === 0)
-    return <div className="text-center mt-10">No archived bills found.</div>;
-
   return (
-    <div className="mx-auto mt-10">
-      <ArchiveTable
-        bills={bills}
-        formatToDDMMYY={formatToDDMMYY}
-        handleDelete={handleDelete}
-        handleRestore={handleRestore}
-      />
+    <div className="flex h-screen">
+      <SideNavbar />
+      <main className="flex-1 p-6 overflow-y-auto">
+        {loading && (
+          <div className="text-center mt-10">Loading archived bills...</div>
+        )}
+        {error && <div className="text-center mt-10 text-red-600">{error}</div>}
+        {!loading && !error && bills.length === 0 && (
+          <div className="text-center mt-10">No archived bills found.</div>
+        )}
+        {!loading && !error && bills.length > 0 && (
+          <ArchiveTable
+            bills={bills}
+            formatToDDMMYY={formatToDDMMYY}
+            handleDelete={handleDelete}
+            handleRestore={handleRestore}
+          />
+        )}
+      </main>
     </div>
   );
 };

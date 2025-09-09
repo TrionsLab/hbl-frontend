@@ -6,6 +6,7 @@ import BillsTable from "../billsTable/BillsTable";
 import PrintableBill from "../printreceipt/PrintableBill";
 import ReferralModal from "../referralModal/ReferralModal";
 import { formatToDDMMYY } from "../../helpers/commonHelpers";
+import SideNavbar from "../common/SideNavbar";
 
 const Dashboard = () => {
   const [bills, setBills] = useState([]);
@@ -33,10 +34,12 @@ const Dashboard = () => {
     setError(null);
     try {
       const data = await fetchBillsByDate(date);
-      setBills(data);
+      // ✅ Ensure it's always an array
+      setBills(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
       console.error("Error fetching bills:", err);
+      setBills([]); // ✅ fallback to empty array on error
     } finally {
       setLoading(false);
     }
@@ -172,235 +175,246 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="max-w mx-2 md:mx-10 mt-4 md:mt-10 space-y-6 md:space-y-8">
-      {showModal && (
-        <ReferralModal
-          title={modalData.title}
-          contentData={modalData.contentData}
-          onClose={() => setShowModal(false)}
-        />
-      )}
+    <div className="flex h-screen">
+      <SideNavbar />
+      <div className="max-w mx-2 md:mx-10 mt-4 md:mt-10 space-y-6 md:space-y-8">
+        {showModal && (
+          <ReferralModal
+            title={modalData.title}
+            contentData={modalData.contentData}
+            onClose={() => setShowModal(false)}
+          />
+        )}
 
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-        <div className="w-full md:w-auto">
-          <div className="stats stats-vertical md:stats-horizontal bg-base-300 shadow">
-            <div className="stat place-items-center py-2 md:py-4">
-              <div className="stat-title text-xs md:text-sm">
-                📋 Total Bills
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+          <div className="w-full md:w-auto">
+            <div className="stats stats-vertical md:stats-horizontal bg-base-300 shadow">
+              <div className="stat place-items-center py-2 md:py-4">
+                <div className="stat-title text-xs md:text-sm">
+                  📋 Total Bills
+                </div>
+                <div className="stat-value text-lg md:text-2xl">
+                  {filteredBills.length}
+                </div>
+                <div className="stat-desc font-bold text-xs">⏳ All time</div>
               </div>
-              <div className="stat-value text-lg md:text-2xl">
-                {filteredBills.length}
-              </div>
-              <div className="stat-desc font-bold text-xs">⏳ All time</div>
-            </div>
 
-            <div className="stat place-items-center py-2 md:py-4">
-              <div className="stat-title text-xs md:text-sm">
-                💰 Total Sales
+              <div className="stat place-items-center py-2 md:py-4">
+                <div className="stat-title text-xs md:text-sm">
+                  💰 Total Sales
+                </div>
+                <div className="stat-value text-lg md:text-2xl">
+                  ৳{totalBillsAmount.toFixed(0)}
+                </div>
+                <div className="stat-desc font-bold text-xs">
+                  ❌ Excludes due
+                </div>
               </div>
-              <div className="stat-value text-lg md:text-2xl">
-                ৳{totalBillsAmount.toFixed(0)}
-              </div>
-              <div className="stat-desc font-bold text-xs">❌ Excludes due</div>
-            </div>
 
-            <div className="stat place-items-center py-2 md:py-4">
-              <div className="stat-title text-xs md:text-sm">📉 Total Due</div>
-              <div className="stat-value text-lg md:text-2xl">
-                ৳{totalDueAmount.toFixed(0)}
+              <div className="stat place-items-center py-2 md:py-4">
+                <div className="stat-title text-xs md:text-sm">
+                  📉 Total Due
+                </div>
+                <div className="stat-value text-lg md:text-2xl">
+                  ৳{totalDueAmount.toFixed(0)}
+                </div>
+                <div className="stat-desc font-bold text-xs">
+                  ⚠️ Unpaid bills
+                </div>
               </div>
-              <div className="stat-desc font-bold text-xs">⚠️ Unpaid bills</div>
-            </div>
 
-            <div className="stat place-items-center py-2 md:py-4">
-              <div className="stat-title text-xs md:text-sm">
-                🏦 Current Balance
-              </div>
-              <div className="stat-value text-lg md:text-2xl">
-                ৳{(totalBillsAmount - totalDueAmount).toFixed(0)}
-              </div>
-              <div className="stat-desc font-bold text-xs">
-                ✅ Available in accounts
+              <div className="stat place-items-center py-2 md:py-4">
+                <div className="stat-title text-xs md:text-sm">
+                  🏦 Current Balance
+                </div>
+                <div className="stat-value text-lg md:text-2xl">
+                  ৳{(totalBillsAmount - totalDueAmount).toFixed(0)}
+                </div>
+                <div className="stat-desc font-bold text-xs">
+                  ✅ Available in accounts
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
-          <Link
-            to="/newbill"
-            className="btn btn-primary btn-sm md:btn-md w-full md:w-auto"
-          >
-            + New Bill
-          </Link>
-          <div className="flex gap-2">
-            <button
-              onClick={openDoctorModal}
-              className="btn btn-outline btn-primary btn-sm md:btn-md flex-1"
+          <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+            <Link
+              to="/newbill"
+              className="btn btn-primary btn-sm md:btn-md w-full md:w-auto"
             >
-              <span className="hidden md:inline">Doctor Referrals</span>
-              <span className="md:hidden">👨‍⚕️</span>
-            </button>
-            <button
-              onClick={openPcModal}
-              className="btn btn-outline btn-primary btn-sm md:btn-md flex-1"
-            >
-              <span className="hidden md:inline">PC Referrals</span>
-              <span className="md:hidden">💻</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter Section */}
-      <div className="bg-base-100 p-3 border shadow-sm rounded-lg">
-        <div className="flex justify-between items-center mb-2">
-          <button
-            className="btn btn-sm md:hidden"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-          >
-            {isFilterOpen ? "▲ Hide" : "▼ Show"} Filters
-          </button>
-        </div>
-
-        <div className={`${isFilterOpen ? "block" : "hidden"} md:block`}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="flex flex-col">
-              <label className="font-semibold text-sm mb-1">📅 Date:</label>
-              <input
-                type="date"
-                className="input input-bordered input-sm"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                max={new Date().toLocaleDateString("en-CA")}
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-semibold text-sm mb-1">Bill Type:</label>
-              <select
-                className="select select-bordered select-sm"
-                value={selectedBillType}
-                onChange={(e) => setSelectedBillType(e.target.value)}
-              >
-                <option value="all">All Types</option>
-                <option value="Test">🧪 Test</option>
-                <option value="Doctor Visit">🩺 Doctor Visit</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-semibold text-sm mb-1">
-                Receptionist:
-              </label>
-              <select
-                className="select select-bordered select-sm"
-                value={selectedReceptionist}
-                onChange={(e) => setSelectedReceptionist(e.target.value)}
-              >
-                <option value="all">👩‍💼 All</option>
-                {receptionists.map((receptionist) => (
-                  <option key={receptionist} value={receptionist}>
-                    {receptionist}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-semibold text-sm mb-1">Search By:</label>
-              <select
-                className="select select-bordered select-sm"
-                value={searchField}
-                onChange={(e) => setSearchField(e.target.value)}
-              >
-                <option value="all">🔍 All Fields</option>
-                <option value="id">🆔 Bill ID</option>
-                <option value="name">👤 Patient Name</option>
-                <option value="phone">📞 Phone</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
-            <div className="flex flex-col md:col-span-2">
-              <label className="font-semibold text-sm mb-1">Search Term:</label>
-              <input
-                type="text"
-                placeholder={`Search by ${
-                  searchField === "all" ? "any field" : searchField
-                }`}
-                className="input input-bordered input-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            <div className="flex items-end gap-3">
-              <label className="label cursor-pointer gap-2 flex items-center select-none">
-                <input
-                  type="checkbox"
-                  checked={showOnlyDue}
-                  onChange={() => setShowOnlyDue(!showOnlyDue)}
-                  className="checkbox checkbox-primary checkbox-sm"
-                />
-                <span className="label-text font-semibold text-sm">
-                  Due Only
-                </span>
-              </label>
-
+              + New Bill
+            </Link>
+            <div className="flex gap-2">
               <button
-                className="btn btn-outline btn-sm hover:bg-base-300 transition-colors"
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedBillType("all");
-                  setSelectedReceptionist("all");
-                  setShowOnlyDue(false);
-                  setSearchField("all");
-                  setSelectedDate(new Date().toLocaleDateString("en-CA"));
-                }}
+                onClick={openDoctorModal}
+                className="btn btn-outline btn-primary btn-sm md:btn-md flex-1"
               >
-                🔄
+                <span className="hidden md:inline">Doctor Referrals</span>
+                <span className="md:hidden">👨‍⚕️</span>
+              </button>
+              <button
+                onClick={openPcModal}
+                className="btn btn-outline btn-primary btn-sm md:btn-md flex-1"
+              >
+                <span className="hidden md:inline">PC Referrals</span>
+                <span className="md:hidden">💻</span>
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Bills Table */}
-      <div className="overflow-x-auto bg-base-100 rounded-lg shadow">
-        {loading ? (
-          <div className="flex justify-center items-center p-8">
-            <span className="loading loading-spinner loading-lg"></span>
-            <span className="ml-2">Loading bills...</span>
-          </div>
-        ) : error ? (
-          <div className="alert alert-error m-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="stroke-current shrink-0 h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
+        {/* Filter Section */}
+        <div className="bg-base-100 p-3 border shadow-sm rounded-lg">
+          <div className="flex justify-between items-center mb-2">
+            <button
+              className="btn btn-sm md:hidden"
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>Error: {error}</span>
+              {isFilterOpen ? "▲ Hide" : "▼ Show"} Filters
+            </button>
           </div>
-        ) : (
-          <BillsTable
-            bills={filteredBills}
-            formatToDDMMYY={formatToDDMMYY}
-            handleClearDue={handleClearDue}
-            handleArchive={handleArchive}
-            printBill={printBill}
-          />
-        )}
+
+          <div className={`${isFilterOpen ? "block" : "hidden"} md:block`}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="flex flex-col">
+                <label className="font-semibold text-sm mb-1">📅 Date:</label>
+                <input
+                  type="date"
+                  className="input input-bordered input-sm"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  max={new Date().toLocaleDateString("en-CA")}
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="font-semibold text-sm mb-1">Bill Type:</label>
+                <select
+                  className="select select-bordered select-sm"
+                  value={selectedBillType}
+                  onChange={(e) => setSelectedBillType(e.target.value)}
+                >
+                  <option value="all">All Types</option>
+                  <option value="Test">🧪 Test</option>
+                  <option value="Doctor Visit">🩺 Doctor Visit</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="font-semibold text-sm mb-1">
+                  Receptionist:
+                </label>
+                <select
+                  className="select select-bordered select-sm"
+                  value={selectedReceptionist}
+                  onChange={(e) => setSelectedReceptionist(e.target.value)}
+                >
+                  <option value="all">👩‍💼 All</option>
+                  {receptionists.map((receptionist) => (
+                    <option key={receptionist} value={receptionist}>
+                      {receptionist}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="font-semibold text-sm mb-1">Search By:</label>
+                <select
+                  className="select select-bordered select-sm"
+                  value={searchField}
+                  onChange={(e) => setSearchField(e.target.value)}
+                >
+                  <option value="all">🔍 All Fields</option>
+                  <option value="id">🆔 Bill ID</option>
+                  <option value="name">👤 Patient Name</option>
+                  <option value="phone">📞 Phone</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+              <div className="flex flex-col md:col-span-2">
+                <label className="font-semibold text-sm mb-1">
+                  Search Term:
+                </label>
+                <input
+                  type="text"
+                  placeholder={`Search by ${
+                    searchField === "all" ? "any field" : searchField
+                  }`}
+                  className="input input-bordered input-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              <div className="flex items-end gap-3">
+                <label className="label cursor-pointer gap-2 flex items-center select-none">
+                  <input
+                    type="checkbox"
+                    checked={showOnlyDue}
+                    onChange={() => setShowOnlyDue(!showOnlyDue)}
+                    className="checkbox checkbox-primary checkbox-sm"
+                  />
+                  <span className="label-text font-semibold text-sm">
+                    Due Only
+                  </span>
+                </label>
+
+                <button
+                  className="btn btn-outline btn-sm hover:bg-base-300 transition-colors"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedBillType("all");
+                    setSelectedReceptionist("all");
+                    setShowOnlyDue(false);
+                    setSearchField("all");
+                    setSelectedDate(new Date().toLocaleDateString("en-CA"));
+                  }}
+                >
+                  🔄
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bills Table */}
+        <div className="overflow-x-auto bg-base-100 rounded-lg shadow">
+          {loading ? (
+            <div className="flex justify-center items-center p-8">
+              <span className="loading loading-spinner loading-lg"></span>
+              <span className="ml-2">Loading bills...</span>
+            </div>
+          ) : error ? (
+            <div className="alert alert-error m-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="stroke-current shrink-0 h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>Error: {error}</span>
+            </div>
+          ) : (
+            <BillsTable
+              bills={filteredBills}
+              formatToDDMMYY={formatToDDMMYY}
+              handleClearDue={handleClearDue}
+              handleArchive={handleArchive}
+              printBill={printBill}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

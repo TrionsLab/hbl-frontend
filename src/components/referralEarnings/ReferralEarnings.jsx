@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import SideNavbar from "../common/SideNavbar";
 import { getReferralEarnings } from "../../api/referralEarningsApi";
 
 const ReferralEarnings = () => {
@@ -73,46 +73,49 @@ const ReferralEarnings = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-5xl">
-        <div className="mb-8">
-          <h1 className="text-xl font-medium text-gray-800">
-            Referral Earnings Summary
-          </h1>
+    <div className="flex h-screen">
+      <SideNavbar />
+      <div className="p-6">
+        <div className="max-w-5xl">
+          <div className="mb-8">
+            <h1 className="text-xl font-medium text-gray-800">
+              Referral Earnings Summary
+            </h1>
 
-          <label className="mt-4 inline-block text-gray-700 font-medium">
-            Select Month:{" "}
-            <input
-              type="month"
-              value={month}
-              onChange={(e) => setMonth(e.target.value)}
-              className="ml-2 p-1 border border-gray-300 rounded"
-              max={new Date().toISOString().slice(0, 7)} // max = current month
-            />
-          </label>
-        </div>
+            <label className="mt-4 inline-block text-gray-700 font-medium">
+              Select Month:{" "}
+              <input
+                type="month"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                className="ml-2 p-1 border border-gray-300 rounded"
+                max={new Date().toISOString().slice(0, 7)} // max = current month
+              />
+            </label>
+          </div>
 
-        {loading && (
-          <p className="text-center text-blue-500 text-lg font-medium">
-            Loading referral earnings...
-          </p>
-        )}
-        {error && (
-          <p className="text-center text-red-500 font-semibold">{error}</p>
-        )}
-
-        {!loading && !error && data && (
-          <>
-            <p className="text-lg font-semibold mb-6">
-              Total Distributed Amount: ৳{" "}
-              {(data.totalDistributedAmount || 0).toFixed(2)}
+          {loading && (
+            <p className="text-center text-blue-500 text-lg font-medium">
+              Loading referral earnings...
             </p>
-            <div className="flex flex-col md:flex-row gap-6">
-              <Card title="Doctor Referrals" items={data.doctorReferrals} />
-              <Card title="PC Referrals" items={data.pcReferrals} />
-            </div>
-          </>
-        )}
+          )}
+          {error && (
+            <p className="text-center text-red-500 font-semibold">{error}</p>
+          )}
+
+          {!loading && !error && data && (
+            <>
+              <p className="text-lg font-semibold mb-6">
+                Total Distributed Amount: ৳{" "}
+                {(data.totalDistributedAmount || 0).toFixed(2)}
+              </p>
+              <div className="flex flex-col md:flex-row gap-6">
+                <Card title="Doctor Referrals" items={data.doctorReferrals} />
+                <Card title="PC Referrals" items={data.pcReferrals} />
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

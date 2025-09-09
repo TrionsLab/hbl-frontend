@@ -1,7 +1,22 @@
 import { Navigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
+  // 🔓 Bypass check with dummy user (temporary)
+  const dummyUser = {
+    id: 1,
+    username: "Test Admin",
+    email: "admintest@clinic.com",
+    role: "admin", // change to "reception" if needed
+  };
+
+  localStorage.setItem("userInfo", JSON.stringify(dummyUser));
+
+  // Always allow navigation for now
+  return children;
+
+  // --------
+  // 👇 Restore this later when you hook up real auth
+  /*
   const token = localStorage.getItem("token");
 
   if (!token) {
@@ -10,8 +25,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   try {
     const decoded = jwtDecode(token);
-
-    // ✅ Store as JSON string
     localStorage.setItem("userInfo", JSON.stringify(decoded));
 
     if (allowedRoles.includes(decoded.role)) {
@@ -23,6 +36,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     console.error("Invalid token:", err);
     return <Navigate to="/login" replace />;
   }
+  */
 };
 
 export default ProtectedRoute;

@@ -1,19 +1,32 @@
-import { Route, BrowserRouter as Router, Routes, Navigate } from "react-router-dom";
-import ReceptionDashboard from "./components/receptionDashboard/ReceptionDashboard";
-import SideNavbar from "./components/sidebar/Sidebar";
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./middlewares/ProtectedRoute";
+
 import Login from "./pages/login/Login";
-import Newbill from "./pages/newbill/Newbill";
 import Register from "./pages/register/Register";
+import Newbill from "./pages/newbill/Newbill";
+
+import ReceptionDashboard from "./components/receptionDashboard/ReceptionDashboard";
+import Dashboard from "./components/dashboard/Dashboard";
+import Stats from "./components/stats/Stats";
+import Archive from "./components/archive/Archive";
+import ReferralEarnings from "./components/referralEarnings/ReferralEarnings";
+import ReferralManager from "./components/referralManager/ReferralManager";
+import Reception from "./pages/reception/Reception";
+import Test from "./components/test/Test";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Default route: always go to login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* Default */}
+          <Route path="/login" element={<Login />} />
 
           <Route
             path="/register"
@@ -23,9 +36,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/login" element={<Login />} />
 
-          {/* Only users with role 'reception' or 'admin' can access newbill */}
           <Route
             path="/newbill"
             element={
@@ -35,12 +46,60 @@ function App() {
             }
           />
 
-          {/* Only admins can access admin dashboard */}
+          {/* Admin dashboard and subpages */}
           <Route
             path="/admin/dashboard"
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
-                <SideNavbar />
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/stats"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Stats />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/archive"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Archive />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ReferralEarnings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/referrals"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ReferralManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/receptions"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Reception />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/test"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Test />
               </ProtectedRoute>
             }
           />
@@ -55,7 +114,7 @@ function App() {
             }
           />
 
-          {/* Catch-all route: if no match, go to login */}
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
