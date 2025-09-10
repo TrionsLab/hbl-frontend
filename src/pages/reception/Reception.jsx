@@ -10,7 +10,7 @@ import {
   Card,
   Space,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   getReceptions,
   updateReception,
@@ -21,6 +21,7 @@ import SideNavbar from "../../components/common/SideNavbar";
 
 const Reception = () => {
   const [receptions, setReceptions] = useState([]);
+  const [filteredReceptions, setFilteredReceptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,7 +39,9 @@ const Reception = () => {
     setLoading(true);
     try {
       const res = await getReceptions();
-      setReceptions(Array.isArray(res.data) ? res.data : []); // ✅ unwrap data safely
+      const data = Array.isArray(res.data) ? res.data : [];
+      setReceptions(data);
+      setFilteredReceptions(data); // ✅ set filtered version initially
     } catch (err) {
       showError(err, "Failed to load receptions");
     } finally {
@@ -49,6 +52,16 @@ const Reception = () => {
   useEffect(() => {
     fetchReceptions();
   }, []);
+
+  const handleSearch = (value) => {
+    const query = value.toLowerCase();
+    const filtered = receptions.filter(
+      (item) =>
+        item.username.toLowerCase().includes(query) ||
+        item.email.toLowerCase().includes(query)
+    );
+    setFilteredReceptions(filtered);
+  };
 
   const handleAdd = () => {
     setEditingReception(null);
@@ -61,7 +74,7 @@ const Reception = () => {
     form.setFieldsValue({
       username: record.username,
       email: record.email,
-      password: "", // reset password optional
+      password: "",
     });
     setIsModalOpen(true);
   };
@@ -81,7 +94,6 @@ const Reception = () => {
       const values = await form.validateFields();
 
       if (editingReception) {
-        // Update existing
         await updateReception(editingReception.id, {
           username: values.username,
           email: values.email,
@@ -89,7 +101,6 @@ const Reception = () => {
         });
         message.success("Receptionist updated");
       } else {
-        // Create new
         await register({ ...values, role: "reception" });
         message.success("Receptionist added");
       }
@@ -146,25 +157,35 @@ const Reception = () => {
             height: "100%",
           }}
         >
-          <h2 className="text-xl font-semibold mb-4">Reception Management</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Reception Management</h2>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAdd}
+            >
+              Add Receptionist
+            </Button>
+          </div>
 
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAdd}
-            style={{ marginBottom: 12, width: 200 }}
-          >
-            Add Receptionist
-          </Button>
+          <Input
+            placeholder="Search by username or email"
+            prefix={<SearchOutlined />}
+            allowClear
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ marginBottom: 12, maxWidth: 300 }}
+          />
 
           <div className="flex-1 overflow-auto">
             <Table
-              dataSource={Array.isArray(receptions) ? receptions : []}
+              dataSource={
+                Array.isArray(filteredReceptions) ? filteredReceptions : []
+              }
               columns={columns}
               rowKey="id"
               loading={loading}
-              size="middle" // ✅ more compact table
-              bordered // ✅ cleaner look
+              size="middle"
+              bordered
               scroll={{ y: "calc(100vh - 250px)" }}
             />
           </div>
