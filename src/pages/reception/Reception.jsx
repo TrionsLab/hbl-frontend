@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
-import { Table, Modal, Form, Input, Button, message, Popconfirm } from "antd";
+import {
+  Table,
+  Modal,
+  Form,
+  Input,
+  Button,
+  message,
+  Popconfirm,
+  Card,
+  Space,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   getReceptions,
@@ -7,7 +17,6 @@ import {
   deleteReception,
 } from "../../api/receptionService";
 import { register } from "../../api/authService";
-import "./Reception.css";
 import SideNavbar from "../../components/common/SideNavbar";
 
 const Reception = () => {
@@ -19,21 +28,27 @@ const Reception = () => {
 
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    fetchReceptions();
-  }, []);
+  // ✅ Centralized error handler
+  const showError = (err, fallback = "Something went wrong") => {
+    const msg = err?.response?.data?.message || err?.message || fallback;
+    message.error(msg);
+  };
 
   const fetchReceptions = async () => {
     setLoading(true);
     try {
       const res = await getReceptions();
-      setReceptions(res); // <-- FIX: res is already an array
+      setReceptions(Array.isArray(res.data) ? res.data : []); // ✅ unwrap data safely
     } catch (err) {
-      message.error("Failed to load receptions");
+      showError(err, "Failed to load receptions");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReceptions();
+  }, []);
 
   const handleAdd = () => {
     setEditingReception(null);
@@ -57,7 +72,7 @@ const Reception = () => {
       message.success("Receptionist deleted");
       fetchReceptions();
     } catch (err) {
-      message.error("Delete failed");
+      showError(err, "Delete failed");
     }
   };
 
@@ -83,8 +98,7 @@ const Reception = () => {
       fetchReceptions();
       form.resetFields();
     } catch (err) {
-      console.error(err);
-      message.error("Operation failed");
+      showError(err, "Operation failed");
     }
   };
 
@@ -103,7 +117,7 @@ const Reception = () => {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <>
+        <Space>
           <Button type="link" onClick={() => handleEdit(record)}>
             Edit
           </Button>
@@ -115,7 +129,7 @@ const Reception = () => {
               Delete
             </Button>
           </Popconfirm>
-        </>
+        </Space>
       ),
     },
   ];
@@ -123,28 +137,37 @@ const Reception = () => {
   return (
     <div className="flex h-screen">
       <SideNavbar />
-      <div className="register-container">
-        <div
-          className="register-card"
-          style={{ width: "80%", maxWidth: "900px" }}
+      <div className="flex-1 p-4 overflow-hidden bg-gray-50">
+        <Card
+          className="h-full shadow-sm rounded-xl flex flex-col bg-white"
+          bodyStyle={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+          }}
         >
-          <h2 className="register-title">Reception Management</h2>
+          <h2 className="text-xl font-semibold mb-4">Reception Management</h2>
 
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleAdd}
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 12, width: 200 }}
           >
             Add Receptionist
           </Button>
 
-          <Table
-            dataSource={receptions}
-            columns={columns}
-            rowKey="id"
-            loading={loading}
-          />
+          <div className="flex-1 overflow-auto">
+            <Table
+              dataSource={Array.isArray(receptions) ? receptions : []}
+              columns={columns}
+              rowKey="id"
+              loading={loading}
+              size="middle" // ✅ more compact table
+              bordered // ✅ cleaner look
+              scroll={{ y: "calc(100vh - 250px)" }}
+            />
+          </div>
 
           <Modal
             title={editingReception ? "Edit Receptionist" : "Add Receptionist"}
@@ -152,8 +175,9 @@ const Reception = () => {
             onOk={handleOk}
             onCancel={() => setIsModalOpen(false)}
             okText={editingReception ? "Update" : "Create"}
+            destroyOnClose
           >
-            <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical" className="space-y-2">
               <Form.Item
                 name="username"
                 label="Username"
@@ -188,7 +212,7 @@ const Reception = () => {
               </Form.Item>
             </Form>
           </Modal>
-        </div>
+        </Card>
       </div>
     </div>
   );
