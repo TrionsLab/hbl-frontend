@@ -8,6 +8,7 @@ import {
   Space,
   message,
   Popconfirm,
+  Card,
 } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import {
@@ -16,7 +17,7 @@ import {
   deleteTest,
   fetchTests,
 } from "../../api/testApi";
-import SideNavbar from "../common/SideNavbar";
+import SideNavbar from "../../components/common/SideNavbar";
 
 const Test = () => {
   const [tests, setTests] = useState([]);
@@ -28,13 +29,19 @@ const Test = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
+  // ✅ centralized error handler
+  const showError = (err, fallback = "Something went wrong") => {
+    const msg = err?.response?.data?.message || err?.message || fallback;
+    message.error(msg);
+  };
+
   const loadTests = async () => {
     setLoading(true);
     try {
-      const data = await fetchTests();
-      setTests(data);
+      const res = await fetchTests();
+      setTests(Array.isArray(res.data) ? res.data : []); // 👈 use res.data
     } catch (err) {
-      message.error("Failed to load tests");
+      showError(err, "Failed to load tests");
     } finally {
       setLoading(false);
     }
@@ -59,7 +66,7 @@ const Test = () => {
         form.resetFields();
         loadTests();
       } catch (err) {
-        message.error("Something went wrong");
+        showError(err);
       }
     });
   };
@@ -70,18 +77,20 @@ const Test = () => {
       message.success("Test deleted successfully");
       loadTests();
     } catch (err) {
-      message.error("Failed to delete test");
+      showError(err, "Failed to delete test");
     }
   };
 
-  // Filter and sort tests based on search
-  const filteredTests = tests
-    .filter(
-      (test) =>
-        test.code.toString().includes(searchText) ||
-        test.description.toLowerCase().includes(searchText.toLowerCase())
-    )
-    .sort((a, b) => Number(a.code) - Number(b.code)); // sort by code serial
+  // Filter & sort
+  const filteredTests = Array.isArray(tests)
+    ? tests
+        .filter(
+          (test) =>
+            test.code?.toString().includes(searchText) ||
+            test.description?.toLowerCase().includes(searchText.toLowerCase())
+        )
+        .sort((a, b) => Number(a.code) - Number(b.code))
+    : [];
 
   const columns = [
     {
@@ -90,12 +99,20 @@ const Test = () => {
       key: "code",
       sorter: (a, b) => Number(a.code) - Number(b.code),
     },
-    { title: "Description", dataIndex: "description", key: "description" },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+    },
     {
       title: "Rate (Tk.)",
       dataIndex: "rate",
       key: "rate",
-      sorter: (a, b) => a.rate - b.rate,
+      sorter: (a, b) => Number(a.rate) - Number(b.rate),
+      render: (rate) =>
+        Number(rate).toLocaleString("en-BD", {
+          minimumFractionDigits: 2,
+        }),
     },
     {
       title: "Actions",
@@ -128,43 +145,55 @@ const Test = () => {
   return (
     <div className="flex h-screen">
       <SideNavbar />
-      <div style={{ padding: 20 }}>
-        <Space style={{ marginBottom: 16 }}>
-          <Input
-            placeholder="Search by code or description"
-            prefix={<SearchOutlined />}
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-              setCurrentPage(1); // reset to first page on search
-            }}
-            allowClear
-          />
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setEditingTest(null);
-              form.resetFields();
-              setIsModalOpen(true);
-            }}
-          >
-            Add Test
-          </Button>
-        </Space>
-
-        <Table
-          columns={columns}
-          dataSource={filteredTests}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            current: currentPage,
-            pageSize,
-            total: filteredTests.length,
-            onChange: (page) => setCurrentPage(page),
+      <div className="flex-1 p-4 overflow-hidden bg-gray-50">
+        <Card
+          className="h-full shadow-md rounded-2xl flex flex-col"
+          bodyStyle={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
           }}
-        />
+        >
+          <Space style={{ marginBottom: 16 }}>
+            <Input
+              placeholder="Search by code or description"
+              prefix={<SearchOutlined />}
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                setCurrentPage(1);
+              }}
+              allowClear
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setEditingTest(null);
+                form.resetFields();
+                setIsModalOpen(true);
+              }}
+            >
+              Add Test
+            </Button>
+          </Space>
+
+          <div className="flex-1 overflow-auto">
+            <Table
+              columns={columns}
+              dataSource={filteredTests}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                current: currentPage,
+                pageSize,
+                total: filteredTests.length,
+                onChange: (page) => setCurrentPage(page),
+              }}
+              scroll={{ y: "calc(100vh - 250px)" }} // ✅ fill height
+            />
+          </div>
+        </Card>
 
         <Modal
           title={editingTest ? "Edit Test" : "Add Test"}
@@ -174,6 +203,7 @@ const Test = () => {
             setEditingTest(null);
           }}
           onOk={handleAddEdit}
+          destroyOnClose
         >
           <Form form={form} layout="vertical">
             <Form.Item

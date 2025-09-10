@@ -1,17 +1,28 @@
 import { useState, useEffect } from "react";
-import { Table, Modal, Form, Input, Button, message, Popconfirm } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Modal,
+  Form,
+  Input,
+  Button,
+  message,
+  Popconfirm,
+  Card,
+  Space,
+} from "antd";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   getReceptions,
   updateReception,
   deleteReception,
+  createReception
 } from "../../api/receptionService";
-import { register } from "../../api/authService";
-import "./Reception.css";
+// import { register } from "../../api/authService";
 import SideNavbar from "../../components/common/SideNavbar";
 
 const Reception = () => {
   const [receptions, setReceptions] = useState([]);
+  const [filteredReceptions, setFilteredReceptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,20 +30,38 @@ const Reception = () => {
 
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    fetchReceptions();
-  }, []);
+  // ✅ Centralized error handler
+  const showError = (err, fallback = "Something went wrong") => {
+    const msg = err?.response?.data?.message || err?.message || fallback;
+    message.error(msg);
+  };
 
   const fetchReceptions = async () => {
     setLoading(true);
     try {
       const res = await getReceptions();
-      setReceptions(res); // <-- FIX: res is already an array
+      const data = Array.isArray(res.data) ? res.data : [];
+      setReceptions(data);
+      setFilteredReceptions(data); // ✅ set filtered version initially
     } catch (err) {
-      message.error("Failed to load receptions");
+      showError(err, "Failed to load receptions");
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchReceptions();
+  }, []);
+
+  const handleSearch = (value) => {
+    const query = value.toLowerCase();
+    const filtered = receptions.filter(
+      (item) =>
+        item.username.toLowerCase().includes(query) ||
+        item.email.toLowerCase().includes(query)
+    );
+    setFilteredReceptions(filtered);
   };
 
   const handleAdd = () => {
@@ -46,7 +75,7 @@ const Reception = () => {
     form.setFieldsValue({
       username: record.username,
       email: record.email,
-      password: "", // reset password optional
+      password: "",
     });
     setIsModalOpen(true);
   };
@@ -57,7 +86,7 @@ const Reception = () => {
       message.success("Receptionist deleted");
       fetchReceptions();
     } catch (err) {
-      message.error("Delete failed");
+      showError(err, "Delete failed");
     }
   };
 
@@ -66,7 +95,6 @@ const Reception = () => {
       const values = await form.validateFields();
 
       if (editingReception) {
-        // Update existing
         await updateReception(editingReception.id, {
           username: values.username,
           email: values.email,
@@ -74,8 +102,7 @@ const Reception = () => {
         });
         message.success("Receptionist updated");
       } else {
-        // Create new
-        await register({ ...values, role: "reception" });
+        await createReception(values);
         message.success("Receptionist added");
       }
 
@@ -83,8 +110,7 @@ const Reception = () => {
       fetchReceptions();
       form.resetFields();
     } catch (err) {
-      console.error(err);
-      message.error("Operation failed");
+      showError(err, "Operation failed");
     }
   };
 
@@ -103,7 +129,7 @@ const Reception = () => {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <>
+        <Space>
           <Button type="link" onClick={() => handleEdit(record)}>
             Edit
           </Button>
@@ -115,7 +141,7 @@ const Reception = () => {
               Delete
             </Button>
           </Popconfirm>
-        </>
+        </Space>
       ),
     },
   ];
@@ -123,28 +149,43 @@ const Reception = () => {
   return (
     <div className="flex h-screen">
       <SideNavbar />
-      <div className="register-container">
-        <div
-          className="register-card"
-          style={{ width: "80%", maxWidth: "900px" }}
+      <div className="flex-1 p-4 overflow-hidden bg-gray-50">
+        <Card
+          className="h-full shadow-sm rounded-xl flex flex-col bg-white"
+          bodyStyle={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+          }}
         >
-          <h2 className="register-title">Reception Management</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Reception Management</h2>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+              Add Receptionist
+            </Button>
+          </div>
 
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAdd}
-            style={{ marginBottom: 16 }}
-          >
-            Add Receptionist
-          </Button>
-
-          <Table
-            dataSource={receptions}
-            columns={columns}
-            rowKey="id"
-            loading={loading}
+          <Input
+            placeholder="Search by username or email"
+            prefix={<SearchOutlined />}
+            allowClear
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ marginBottom: 12, maxWidth: 300 }}
           />
+
+          <div className="flex-1 overflow-auto">
+            <Table
+              dataSource={
+                Array.isArray(filteredReceptions) ? filteredReceptions : []
+              }
+              columns={columns}
+              rowKey="id"
+              loading={loading}
+              size="middle"
+              bordered
+              scroll={{ y: "calc(100vh - 250px)" }}
+            />
+          </div>
 
           <Modal
             title={editingReception ? "Edit Receptionist" : "Add Receptionist"}
@@ -152,8 +193,9 @@ const Reception = () => {
             onOk={handleOk}
             onCancel={() => setIsModalOpen(false)}
             okText={editingReception ? "Update" : "Create"}
+            destroyOnClose
           >
-            <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical" className="space-y-2">
               <Form.Item
                 name="username"
                 label="Username"
@@ -188,7 +230,7 @@ const Reception = () => {
               </Form.Item>
             </Form>
           </Modal>
-        </div>
+        </Card>
       </div>
     </div>
   );

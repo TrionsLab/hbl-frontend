@@ -9,9 +9,25 @@ export const getReceptions = async () => {
     const response = await axios.get(`${API_BASE}/api/receptions`, {
       headers: getAuthHeaders(),
     });
-    return response.data;
+    return response.data; // { message, data }
   } catch (error) {
-    throw new Error(error?.response?.data?.message || "Failed to fetch receptions");
+    throw new Error(
+      error?.response?.data?.message || "Failed to fetch receptions"
+    );
+  }
+};
+
+// ✅ Create new reception
+export const createReception = async (data) => {
+  try {
+    const response = await axios.post(`${API_BASE}/api/receptions`, data, {
+      headers: getAuthHeaders(),
+    });
+    return response.data; // { message, data }
+  } catch (error) {
+    throw new Error(
+      error?.response?.data?.message || "Failed to create reception"
+    );
   }
 };
 
@@ -23,7 +39,9 @@ export const updateReception = async (id, data) => {
     });
     return response.data;
   } catch (error) {
-    throw new Error(error?.response?.data?.message || "Failed to update reception");
+    throw new Error(
+      error?.response?.data?.message || "Failed to update reception"
+    );
   }
 };
 
@@ -35,6 +53,8 @@ export const deleteReception = async (id) => {
     });
     return response.data;
   } catch (error) {
-    throw new Error(error?.response?.data?.message || "Failed to delete reception");
+    throw new Error(
+      error?.response?.data?.message || "Failed to delete reception"
+    );
   }
 };
