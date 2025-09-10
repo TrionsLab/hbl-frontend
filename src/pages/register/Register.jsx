@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { register } from "../../api/authService";
 import "./Register.css";
+import SideNavbar from "../../components/common/SideNavbar";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -56,61 +57,66 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
-      {success ? (
-        <div className="success-message">
-          <span className="green-tick">✔</span>
-          <p>User registered successfully!</p>
-        </div>
-      ) : (
-        <form className="register-card" onSubmit={handleSubmit} noValidate>
-          <h2 className="register-title">Create Receptionist</h2>
-
-          {errors.form && <p className="form-error">{errors.form}</p>}
-
-          <div className="form-group">
-            <label>Username</label>
-            <input
-              type="text"
-              placeholder="your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className={errors.username ? "input-error" : ""}
-            />
-            {errors.username && <p className="error-text">{errors.username}</p>}
+    <div className="flex h-screen">
+      <SideNavbar />
+      <div className="register-container">
+        {success ? (
+          <div className="success-message">
+            <span className="green-tick">✔</span>
+            <p>User registered successfully!</p>
           </div>
+        ) : (
+          <form className="register-card" onSubmit={handleSubmit} noValidate>
+            <h2 className="register-title">Create Receptionist</h2>
 
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={errors.email ? "input-error" : ""}
-            />
-            {errors.email && <p className="error-text">{errors.email}</p>}
-          </div>
+            {errors.form && <p className="form-error">{errors.form}</p>}
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={errors.password ? "input-error" : ""}
-            />
-            {errors.password && (
-              <p className="error-text">{errors.password}</p>
-            )}
-          </div>
+            <div className="form-group">
+              <label>Username</label>
+              <input
+                type="text"
+                placeholder="your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={errors.username ? "input-error" : ""}
+              />
+              {errors.username && (
+                <p className="error-text">{errors.username}</p>
+              )}
+            </div>
 
-          <button type="submit" className="register-button">
-            Register
-          </button>
-        </form>
-      )}
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={errors.email ? "input-error" : ""}
+              />
+              {errors.email && <p className="error-text">{errors.email}</p>}
+            </div>
+
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={errors.password ? "input-error" : ""}
+              />
+              {errors.password && (
+                <p className="error-text">{errors.password}</p>
+              )}
+            </div>
+
+            <button type="submit" className="register-button">
+              Register
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 };

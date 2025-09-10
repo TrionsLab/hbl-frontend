@@ -6,10 +6,9 @@ import {
   updateReception,
   deleteReception,
 } from "../../api/receptionService";
-import {
-  register,
-} from "../../api/authService";
+import { register } from "../../api/authService";
 import "./Reception.css";
+import SideNavbar from "../../components/common/SideNavbar";
 
 const Reception = () => {
   const [receptions, setReceptions] = useState([]);
@@ -122,66 +121,74 @@ const Reception = () => {
   ];
 
   return (
-    <div className="register-container">
-      <div className="register-card" style={{ width: "80%", maxWidth: "900px" }}>
-        <h2 className="register-title">Reception Management</h2>
-
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAdd}
-          style={{ marginBottom: 16 }}
+    <div className="flex h-screen">
+      <SideNavbar />
+      <div className="register-container">
+        <div
+          className="register-card"
+          style={{ width: "80%", maxWidth: "900px" }}
         >
-          Add Receptionist
-        </Button>
+          <h2 className="register-title">Reception Management</h2>
 
-        <Table
-          dataSource={receptions}
-          columns={columns}
-          rowKey="id"
-          loading={loading}
-        />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleAdd}
+            style={{ marginBottom: 16 }}
+          >
+            Add Receptionist
+          </Button>
 
-        <Modal
-          title={editingReception ? "Edit Receptionist" : "Add Receptionist"}
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={() => setIsModalOpen(false)}
-          okText={editingReception ? "Update" : "Create"}
-        >
-          <Form form={form} layout="vertical">
-            <Form.Item
-              name="username"
-              label="Username"
-              rules={[{ required: true, message: "Please enter username" }]}
-            >
-              <Input placeholder="Username" />
-            </Form.Item>
+          <Table
+            dataSource={receptions}
+            columns={columns}
+            rowKey="id"
+            loading={loading}
+          />
 
-            <Form.Item
-              name="email"
-              label="Email"
-              rules={[
-                { required: true, message: "Please enter email" },
-                { type: "email", message: "Enter valid email" },
-              ]}
-            >
-              <Input placeholder="Email" />
-            </Form.Item>
+          <Modal
+            title={editingReception ? "Edit Receptionist" : "Add Receptionist"}
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={() => setIsModalOpen(false)}
+            okText={editingReception ? "Update" : "Create"}
+          >
+            <Form form={form} layout="vertical">
+              <Form.Item
+                name="username"
+                label="Username"
+                rules={[{ required: true, message: "Please enter username" }]}
+              >
+                <Input placeholder="Username" />
+              </Form.Item>
 
-            <Form.Item
-              name="password"
-              label={editingReception ? "New Password (optional)" : "Password"}
-              rules={
-                editingReception
-                  ? []
-                  : [{ required: true, message: "Please enter password" }]
-              }
-            >
-              <Input.Password placeholder="••••••••" />
-            </Form.Item>
-          </Form>
-        </Modal>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter email" },
+                  { type: "email", message: "Enter valid email" },
+                ]}
+              >
+                <Input placeholder="Email" />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                label={
+                  editingReception ? "New Password (optional)" : "Password"
+                }
+                rules={
+                  editingReception
+                    ? []
+                    : [{ required: true, message: "Please enter password" }]
+                }
+              >
+                <Input.Password placeholder="••••••••" />
+              </Form.Item>
+            </Form>
+          </Modal>
+        </div>
       </div>
     </div>
   );

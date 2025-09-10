@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../../api/authService";
 import { useAuth } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import SideNavbar from "../../components/sidebar/Sidebar";
 import "./Login.css";
 
 const Login = () => {
@@ -13,11 +14,9 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
 
-  // ✅ useEffect for redirect after login
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/newbill"); // or choose only one route
-      // navigate("/newbill");  <-- pick one, don’t call twice
+      navigate("/newbill");
     }
   }, [isAuthenticated]);
 
@@ -38,64 +37,94 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!validate()) return;
+
+  //   try {
+  //     const res = await login({ email, password });
+  //     const decoded = jwtDecode(res.token);
+
+  //     if (decoded.role === "admin") {
+  //       navigate("/admin/dashboard");
+  //     } else if (decoded.role === "reception") {
+  //       navigate("/newbill");
+  //     } else {
+  //       navigate("/login");
+  //     }
+  //   } catch (error) {
+  //     setErrors({ form: "Invalid email or password." });
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
 
     try {
-      const res = await login({ email, password }); 
+      // 🔓 TEMP BYPASS (no API call)
+      const dummyUser = {
+        id: 1,
+        username: "Test Admin",
+        email: "admin@example.com",
+        role: email.includes("reception") ? "reception" : "admin",
+      };
 
-      // Decode token to get role
-      const decoded = jwtDecode(res.token);
+      // Save dummy data in localStorage
+      localStorage.setItem("token", "dummy-token");
+      localStorage.setItem("userInfo", JSON.stringify(dummyUser));
 
-      if (decoded.role === "admin") {
+      // Navigate based on role
+      if (dummyUser.role === "admin") {
         navigate("/admin/dashboard");
-      } else if (decoded.role === "reception") {
+      } else if (dummyUser.role === "reception") {
         navigate("/newbill");
       } else {
-        navigate("/login"); // fallback if role unknown
+        navigate("/login");
       }
     } catch (error) {
-      setErrors({ form: "Invalid email or password." });
+      setErrors({ form: "Something went wrong (dummy login failed)." });
     }
   };
 
   return (
-    <div className="login-container">
-      <form className="login-card" onSubmit={handleSubmit} noValidate>
-        <h2 className="login-title">Login</h2>
+    <div className="flex h-screen">
+      {/* Login form content */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
+        <form className="login-card" onSubmit={handleSubmit} noValidate>
+          <h2 className="login-title">Login</h2>
 
-        {errors.form && <p className="form-error">{errors.form}</p>}
+          {errors.form && <p className="form-error">{errors.form}</p>}
 
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={errors.email ? "input-error" : ""}
-          />
-          {errors.email && <p className="error-text">{errors.email}</p>}
-        </div>
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={errors.email ? "input-error" : ""}
+            />
+            {errors.email && <p className="error-text">{errors.email}</p>}
+          </div>
 
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={errors.password ? "input-error" : ""}
-          />
-          {errors.password && <p className="error-text">{errors.password}</p>}
-        </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={errors.password ? "input-error" : ""}
+            />
+            {errors.password && <p className="error-text">{errors.password}</p>}
+          </div>
 
-        <button type="submit" className="login-button">
-          Login
-        </button>
-      </form>
+          <button type="submit" className="login-button">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

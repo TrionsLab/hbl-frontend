@@ -1,7 +1,22 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space, message, Popconfirm } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  message,
+  Popconfirm,
+} from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { createTest, updateTest, deleteTest, fetchTests } from "../../api/testApi";
+import {
+  createTest,
+  updateTest,
+  deleteTest,
+  fetchTests,
+} from "../../api/testApi";
+import SideNavbar from "../common/SideNavbar";
 
 const Test = () => {
   const [tests, setTests] = useState([]);
@@ -69,9 +84,19 @@ const Test = () => {
     .sort((a, b) => Number(a.code) - Number(b.code)); // sort by code serial
 
   const columns = [
-    { title: "Code", dataIndex: "code", key: "code", sorter: (a, b) => Number(a.code) - Number(b.code) },
+    {
+      title: "Code",
+      dataIndex: "code",
+      key: "code",
+      sorter: (a, b) => Number(a.code) - Number(b.code),
+    },
     { title: "Description", dataIndex: "description", key: "description" },
-    { title: "Rate (Tk.)", dataIndex: "rate", key: "rate", sorter: (a, b) => a.rate - b.rate },
+    {
+      title: "Rate (Tk.)",
+      dataIndex: "rate",
+      key: "rate",
+      sorter: (a, b) => a.rate - b.rate,
+    },
     {
       title: "Actions",
       key: "actions",
@@ -101,77 +126,82 @@ const Test = () => {
   ];
 
   return (
-    <div style={{ padding: 20 }}>
-      <Space style={{ marginBottom: 16 }}>
-        <Input
-          placeholder="Search by code or description"
-          prefix={<SearchOutlined />}
-          value={searchText}
-          onChange={(e) => {
-            setSearchText(e.target.value);
-            setCurrentPage(1); // reset to first page on search
+    <div className="flex h-screen">
+      <SideNavbar />
+      <div style={{ padding: 20 }}>
+        <Space style={{ marginBottom: 16 }}>
+          <Input
+            placeholder="Search by code or description"
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              setCurrentPage(1); // reset to first page on search
+            }}
+            allowClear
+          />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setEditingTest(null);
+              form.resetFields();
+              setIsModalOpen(true);
+            }}
+          >
+            Add Test
+          </Button>
+        </Space>
+
+        <Table
+          columns={columns}
+          dataSource={filteredTests}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            current: currentPage,
+            pageSize,
+            total: filteredTests.length,
+            onChange: (page) => setCurrentPage(page),
           }}
-          allowClear
         />
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => {
+
+        <Modal
+          title={editingTest ? "Edit Test" : "Add Test"}
+          open={isModalOpen}
+          onCancel={() => {
+            setIsModalOpen(false);
             setEditingTest(null);
-            form.resetFields();
-            setIsModalOpen(true);
           }}
+          onOk={handleAddEdit}
         >
-          Add Test
-        </Button>
-      </Space>
-
-      <Table
-        columns={columns}
-        dataSource={filteredTests}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: filteredTests.length,
-          onChange: (page) => setCurrentPage(page),
-        }}
-      />
-
-      <Modal
-        title={editingTest ? "Edit Test" : "Add Test"}
-        open={isModalOpen}
-        onCancel={() => {
-          setIsModalOpen(false);
-          setEditingTest(null);
-        }}
-        onOk={handleAddEdit}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Code"
-            name="code"
-            rules={[{ required: true, message: "Please enter test code" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Description"
-            name="description"
-            rules={[{ required: true, message: "Please enter test description" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Rate (Tk.)"
-            name="rate"
-            rules={[{ required: true, message: "Please enter test rate" }]}
-          >
-            <Input type="number" />
-          </Form.Item>
-        </Form>
-      </Modal>
+          <Form form={form} layout="vertical">
+            <Form.Item
+              label="Code"
+              name="code"
+              rules={[{ required: true, message: "Please enter test code" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Description"
+              name="description"
+              rules={[
+                { required: true, message: "Please enter test description" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Rate (Tk.)"
+              name="rate"
+              rules={[{ required: true, message: "Please enter test rate" }]}
+            >
+              <Input type="number" />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </div>
     </div>
   );
 };

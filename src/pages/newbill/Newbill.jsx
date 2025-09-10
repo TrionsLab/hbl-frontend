@@ -5,11 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 import { createBill } from "../../api/billApi.js";
 import { getReferences } from "../../api/referralManagerApi.js";
 import { fetchTests } from "../../api/testApi";
-import Navbar from "../../components/Navbar/Navbar";
+import Navbar from "../../components/navbar/Navbar";
 import PrintableBill from "../../components/printreceipt/PrintableBill";
 
 const Newbill = () => {
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState();
 
   const [references, setReferences] = useState([]);
   const [loading, setLoading] = useState(true);
