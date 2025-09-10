@@ -15,8 +15,9 @@ import {
   getReceptions,
   updateReception,
   deleteReception,
+  createReception
 } from "../../api/receptionService";
-import { register } from "../../api/authService";
+// import { register } from "../../api/authService";
 import SideNavbar from "../../components/common/SideNavbar";
 
 const Reception = () => {
@@ -101,7 +102,7 @@ const Reception = () => {
         });
         message.success("Receptionist updated");
       } else {
-        await register({ ...values, role: "reception" });
+        await createReception(values);
         message.success("Receptionist added");
       }
 
@@ -159,11 +160,7 @@ const Reception = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Reception Management</h2>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleAdd}
-            >
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
               Add Receptionist
             </Button>
           </div>
