@@ -16,9 +16,12 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Stats from "./components/stats/Stats";
 import Archive from "./components/archive/Archive";
 import ReferralEarnings from "./components/referralEarnings/ReferralEarnings";
-import ReferralManager from "./pages/referralManager/ReferralManager";
 import Reception from "./pages/reception/Reception";
 import Test from "./pages/medicalTests/MedicalTests";
+
+// New pages
+import DoctorManager from "./pages/doctor/DoctorManager";
+import PCManager from "./pages/primaryCare/PCManager";
 
 function App() {
   return (
@@ -79,14 +82,25 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* New routes */}
           <Route
-            path="/admin/referrals"
+            path="/admin/doctors"
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
-                <ReferralManager />
+                <DoctorManager />
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/pcs"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <PCManager />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/admin/receptions"
             element={
