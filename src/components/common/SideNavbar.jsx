@@ -59,7 +59,7 @@ const SideNavbar = () => {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-50">
       {/* Mobile Header */}
       {isMobileView && (
         <div className="flex items-center justify-between p-4 bg-white shadow-md md:hidden">
@@ -76,12 +76,12 @@ const SideNavbar = () => {
       {/* Sidebar */}
       <div
         className={`
-          ${isMobileView ? "fixed inset-y-0 left-0 z-50 transform" : "w-64"} 
-          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} 
-          md:translate-x-0 md:relative md:w-64
-          bg-white shadow-md transition-transform duration-300 ease-in-out
-          w-64 h-full overflow-y-auto
-        `}
+      ${isMobileView ? "fixed inset-y-0 left-0 z-50 transform" : "w-64"} 
+      ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} 
+      md:translate-x-0 md:relative md:w-64
+      bg-blue-50 shadow-md transition-transform duration-300 ease-in-out
+      w-64 h-full overflow-y-auto
+    `}
       >
         <div className="flex justify-center p-4 border-b border-gray-200">
           <img width={75} src={logo} alt="Logo" />
@@ -101,7 +101,7 @@ const SideNavbar = () => {
           {/* Logout */}
           <div
             onClick={handleLogout}
-            className="flex items-center px-6 py-3 cursor-pointer transition-colors duration-200 text-red-600 hover:bg-red-50 font-medium"
+            className="flex items-center px-6 py-3 cursor-pointer transition-colors duration-200 text-red-600 hover:bg-red-100 font-medium"
           >
             <LogoutOutlined className="text-lg mr-3" />
             <span>Logout</span>

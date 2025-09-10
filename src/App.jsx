@@ -16,7 +16,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Stats from "./components/stats/Stats";
 import Archive from "./components/archive/Archive";
 import ReferralEarnings from "./components/referralEarnings/ReferralEarnings";
-import ReferralManager from "./components/referralManager/ReferralManager";
+import ReferralManager from "./pages/referralManager/ReferralManager";
 import Reception from "./pages/reception/Reception";
 import Test from "./pages/medicalTests/MedicalTests";
 

@@ -5,7 +5,7 @@ import Dashboard from "../../components/dashboard/Dashboard";
 import Reception from "../../pages/reception/Reception";
 import Archive from "../archive/Archive";
 import ReferralEarnings from "../referralEarnings/ReferralEarnings";
-import ReferralManager from "../referralManager/ReferralManager";
+import ReferralManager from "../../pages/referralManager/ReferralManager";
 import Stats from "../stats/Stats";
 import Test from "../../pages/medicalTests/MedicalTests";
 
