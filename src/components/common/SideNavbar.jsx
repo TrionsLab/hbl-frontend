@@ -45,10 +45,16 @@ const SideNavbar = () => {
       to: "/admin/reports",
       icon: <DollarCircleOutlined />,
     },
+    // Replacing Reference Manager with Doctor Manager & PC Manager
     {
-      label: "Reference Manager",
-      to: "/admin/referrals",
+      label: "Doctor Manager",
+      to: "/admin/doctors",
       icon: <TeamOutlined />,
+    },
+    {
+      label: "PC Manager",
+      to: "/admin/pcs",
+      icon: <UserSwitchOutlined />,
     },
     {
       label: "Reception Manager",
