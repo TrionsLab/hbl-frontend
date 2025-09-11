@@ -11,8 +11,8 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Newbill from "./pages/newbill/Newbill";
 
-import ReceptionDashboard from "./components/receptionDashboard/ReceptionDashboard";
-import Dashboard from "./components/dashboard/Dashboard";
+import ReceptionDashboard from "./pages/receptionDashboard/ReceptionDashboard";
+import Dashboard from "./pages/dashboard/Dashboard";
 import Stats from "./components/stats/Stats";
 import Archive from "./components/archive/Archive";
 import ReferralEarnings from "./components/referralEarnings/ReferralEarnings";
