@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { register } from "../../api/authService";
+import { register } from "../../../api/authService";
 import "./Register.css";
-import SideNavbar from "../../components/common/SideNavbar";
+import SideNavbar from "../../common/SideNavbar";
 
 const Register = () => {
   const [username, setUsername] = useState("");
