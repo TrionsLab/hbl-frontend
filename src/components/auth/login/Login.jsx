@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 // import { login } from "../../api/authService";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 // import { jwtDecode } from "jwt-decode";
 // import SideNavbar from "../../components/common/SideNavbar";
 import "./Login.css";

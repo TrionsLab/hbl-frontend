@@ -27,7 +27,7 @@ import {
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const { Sider, Content } = Layout;
+const { Content } = Layout;
 const { Option } = Select;
 
 const Dashboard = () => {
@@ -188,10 +188,8 @@ const Dashboard = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={220} theme="light">
-        <SideNavbar />
-      </Sider>
+    <div className="flex h-screen bg-gray-50">
+      <SideNavbar />
       <Layout>
         <Content style={{ margin: "20px", padding: "20px" }}>
           {showModal && (
@@ -371,7 +369,7 @@ const Dashboard = () => {
           </Card>
         </Content>
       </Layout>
-    </Layout>
+    </div>
   );
 };
 

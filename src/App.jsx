@@ -7,15 +7,15 @@ import {
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./middlewares/ProtectedRoute";
 
-import Login from "./pages/login/Login";
-import Register from "./pages/register/Register";
+import Login from "./components/auth/login/Login";
+import Register from "./components/auth/register/Register";
 import Newbill from "./pages/newbill/Newbill";
 
 import ReceptionDashboard from "./pages/receptionDashboard/ReceptionDashboard";
 import Dashboard from "./pages/dashboard/Dashboard";
-import Stats from "./components/stats/Stats";
-import Archive from "./components/archive/Archive";
-import ReferralEarnings from "./components/referralEarnings/ReferralEarnings";
+import Stats from "./pages/stats/Stats";
+import Archive from "./pages/archiveBills/Archive";
+import ReferralEarnings from "./pages/referralEarnings/ReferralEarnings";
 import Reception from "./pages/reception/Reception";
 import Test from "./pages/medicalTests/MedicalTests";
 
