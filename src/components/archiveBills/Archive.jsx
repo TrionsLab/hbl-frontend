@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { restoreBill, deleteBill, fetchArchivedBills } from "../../api/billApi";
 import { formatToDDMMYY } from "../../helpers/commonHelpers";
-import ArchiveTable from "../archiveTable/ArchiveTable";
-import SideNavbar from "../common/SideNavbar";
+import ArchiveTable from "../../components/archiveTable/ArchiveTable";
+import SideNavbar from "../../components/common/SideNavbar";
 
 const Archive = () => {
   const [bills, setBills] = useState([]);
