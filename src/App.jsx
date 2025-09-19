@@ -8,7 +8,6 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./middlewares/ProtectedRoute";
 
 import Login from "./components/auth/login/Login";
-import Register from "./components/auth/register/Register";
 import Newbill from "./pages/newbill/Newbill";
 
 import ReceptionDashboard from "./pages/receptionDashboard/ReceptionDashboard";
@@ -30,15 +29,6 @@ function App() {
         <Routes>
           {/* Default */}
           <Route path="/login" element={<Login />} />
-
-          <Route
-            path="/register"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Register />
-              </ProtectedRoute>
-            }
-          />
 
           <Route
             path="/newbill"

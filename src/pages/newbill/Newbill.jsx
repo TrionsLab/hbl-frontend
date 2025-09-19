@@ -6,6 +6,7 @@ import DoctorVisit from "../../components/newbill/DoctorVisit";
 import PatientDetailsForm from "../../components/newbill/PatientDetailsForm";
 import ReferenceSelector from "../../components/newbill/ReferenceSelector";
 import Test from "../../components/newbill/Test";
+import Navbar from "../../components/navbar/Navbar";
 
 const { Option } = Select;
 
@@ -106,154 +107,223 @@ const NewBillPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-start p-6 bg-gray-50 min-h-screen">
-      <Card title={<span className="text-xl font-bold">Create New Bill</span>} className="w-full max-w-7xl">
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          enableReinitialize
-          onSubmit={handleSubmit}
+    <div className="min-h-screen bg-gray-50">
+      {/* ✅ Navbar on top, full width */}
+      <div className="sticky top-0 z-50 bg-white shadow">
+        <Navbar />
+      </div>
+
+      {/* Page content */}
+      <div className="flex justify-center items-start p-6">
+        <Card
+          title={<span className="text-xl font-bold">Create New Bill</span>}
+          className="w-full max-w-7xl"
         >
-          {({ values, setFieldValue }) => {
-            const grossAmount =
-              values.billType === "Test"
-                ? values.selectedTests.reduce((sum, test) => sum + Number(test.rate) * test.quantity, 0)
-                : values.doctorFee;
-            const discountAmount = (grossAmount * values.discount) / 100;
-            const totalAmount = grossAmount - discountAmount - values.extraDiscount;
-            const due = totalAmount - values.receivedAmount;
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            enableReinitialize
+            onSubmit={handleSubmit}
+          >
+            {({ values, setFieldValue }) => {
+              const grossAmount =
+                values.billType === "Test"
+                  ? values.selectedTests.reduce(
+                      (sum, test) => sum + Number(test.rate) * test.quantity,
+                      0
+                    )
+                  : values.doctorFee;
+              const discountAmount = (grossAmount * values.discount) / 100;
+              const totalAmount =
+                grossAmount - discountAmount - values.extraDiscount;
+              const due = totalAmount - values.receivedAmount;
 
-            return (
-              <Form className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column */}
-                <div className="space-y-6">
-                  <Card className="border-gray-200 rounded-xl">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block mb-1 font-medium">Bill Type</label>
-                        <Select
-                          value={values.billType}
-                          onChange={(value) => {
-                            setFieldValue("billType", value);
-                            resetFieldsForBillType(value, setFieldValue);
-                          }}
-                          className="w-full"
-                        >
-                          <Option value="Test">Test</Option>
-                          <Option value="Consultancy">Consultancy</Option>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <label className="block mb-1 font-medium">Receptionist</label>
-                        <Input value={`ID: ${receptionistId}`} disabled className="w-full bg-gray-100 cursor-not-allowed" />
-                      </div>
-                    </div>
-                  </Card>
-
-                  <Card className="border-gray-200 rounded-xl">
-                    <h3 className="text-lg font-semibold mb-4">Patient Details</h3>
-                    <PatientDetailsForm />
-                  </Card>
-                </div>
-
-                {/* Middle Column */}
-                <div className="space-y-6">
-                  {values.billType === "Test" && (
-                    <Card className="border-gray-200 rounded-xl space-y-4">
-                      <h3 className="text-lg font-semibold">Tests & Referrals</h3>
-                      <Test
-                        selectedTests={values.selectedTests}
-                        onTestsChange={(tests) => setFieldValue("selectedTests", tests)}
-                      />
-                      <ReferenceSelector
-                        doctorValue={values.doctorReferralId}
-                        onDoctorChange={(val) => setFieldValue("doctorReferralId", val?.id || null)}
-                        doctorFee={values.doctorReferralFee}
-                        onDoctorFeeChange={(val) => setFieldValue("doctorReferralFee", val)}
-                        primaryValue={values.pcReferralId}
-                        onPrimaryChange={(val) => setFieldValue("pcReferralId", val?.id || null)}
-                        primaryFee={values.pcReferralFee}
-                        onPrimaryFeeChange={(val) => setFieldValue("pcReferralFee", val)}
-                      />
-                    </Card>
-                  )}
-
-                  {values.billType === "Consultancy" && (
+              return (
+                <Form className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-6">
                     <Card className="border-gray-200 rounded-xl">
-                      <h3 className="text-lg font-semibold">Doctor Visit</h3>
-                      <DoctorVisit
-                        doctorValue={values.visitedDoctorId}
-                        onDoctorChange={(val) => setFieldValue("visitedDoctorId", val?.id || null)}
-                        doctorFee={values.doctorFee}
-                        onDoctorFeeChange={(val) => setFieldValue("doctorFee", val)}
-                      />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block mb-1 font-medium">
+                            Bill Type
+                          </label>
+                          <Select
+                            value={values.billType}
+                            onChange={(value) => {
+                              setFieldValue("billType", value);
+                              resetFieldsForBillType(value, setFieldValue);
+                            }}
+                            className="w-full"
+                          >
+                            <Option value="Test">Test</Option>
+                            <Option value="Consultancy">Consultancy</Option>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="block mb-1 font-medium">
+                            Receptionist
+                          </label>
+                          <Input
+                            value={`ID: ${receptionistId}`}
+                            disabled
+                            className="w-full bg-gray-100 cursor-not-allowed"
+                          />
+                        </div>
+                      </div>
                     </Card>
-                  )}
-                </div>
 
-                {/* Right Column - Summary */}
-                <div className="space-y-6 sticky top-6">
-                  <Card className="border-gray-200 rounded-xl space-y-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-3">Bill Summary</h3>
+                    <Card className="border-gray-200 rounded-xl">
+                      <h3 className="text-lg font-semibold mb-4">
+                        Patient Details
+                      </h3>
+                      <PatientDetailsForm />
+                    </Card>
+                  </div>
 
-                    <div className="space-y-2">
-                      <p>
-                        <strong>Gross Amount:</strong> {grossAmount.toFixed(2)}
-                      </p>
-
-                      <div>
-                        <label className="block text-sm font-medium">Discount (%)</label>
-                        <Input
-                          type="number"
-                          min={0}
-                          max={100}
-                          value={values.discount}
-                          onChange={(e) => setFieldValue("discount", Number(e.target.value))}
+                  {/* Middle Column */}
+                  <div className="space-y-6">
+                    {values.billType === "Test" && (
+                      <Card className="border-gray-200 rounded-xl space-y-4">
+                        <h3 className="text-lg font-semibold">
+                          Tests & Referrals
+                        </h3>
+                        <Test
+                          selectedTests={values.selectedTests}
+                          onTestsChange={(tests) =>
+                            setFieldValue("selectedTests", tests)
+                          }
                         />
+                        <ReferenceSelector
+                          doctorValue={values.doctorReferralId}
+                          onDoctorChange={(val) =>
+                            setFieldValue("doctorReferralId", val?.id || null)
+                          }
+                          doctorFee={values.doctorReferralFee}
+                          onDoctorFeeChange={(val) =>
+                            setFieldValue("doctorReferralFee", val)
+                          }
+                          primaryValue={values.pcReferralId}
+                          onPrimaryChange={(val) =>
+                            setFieldValue("pcReferralId", val?.id || null)
+                          }
+                          primaryFee={values.pcReferralFee}
+                          onPrimaryFeeChange={(val) =>
+                            setFieldValue("pcReferralFee", val)
+                          }
+                        />
+                      </Card>
+                    )}
+
+                    {values.billType === "Consultancy" && (
+                      <Card className="border-gray-200 rounded-xl">
+                        <h3 className="text-lg font-semibold">Doctor Visit</h3>
+                        <DoctorVisit
+                          doctorValue={values.visitedDoctorId}
+                          onDoctorChange={(val) =>
+                            setFieldValue("visitedDoctorId", val?.id || null)
+                          }
+                          doctorFee={values.doctorFee}
+                          onDoctorFeeChange={(val) =>
+                            setFieldValue("doctorFee", val)
+                          }
+                        />
+                      </Card>
+                    )}
+                  </div>
+
+                  {/* Right Column - Summary */}
+                  <div className="space-y-6 sticky top-6">
+                    <Card className="border-gray-200 rounded-xl space-y-4 bg-gray-50">
+                      <h3 className="text-lg font-semibold mb-3">
+                        Bill Summary
+                      </h3>
+
+                      <div className="space-y-2">
+                        <p>
+                          <strong>Gross Amount:</strong>{" "}
+                          {grossAmount.toFixed(2)}
+                        </p>
+
+                        <div>
+                          <label className="block text-sm font-medium">
+                            Discount (%)
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={values.discount}
+                            onChange={(e) =>
+                              setFieldValue("discount", Number(e.target.value))
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium">
+                            Extra Discount
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={values.extraDiscount}
+                            onChange={(e) =>
+                              setFieldValue(
+                                "extraDiscount",
+                                Number(e.target.value)
+                              )
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium">
+                            Received Amount
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={values.receivedAmount}
+                            onChange={(e) =>
+                              setFieldValue(
+                                "receivedAmount",
+                                Number(e.target.value)
+                              )
+                            }
+                          />
+                        </div>
+
+                        <p>
+                          <strong>Discount Amount:</strong>{" "}
+                          {discountAmount.toFixed(2)}
+                        </p>
+                        <p>
+                          <strong>Total:</strong> {totalAmount.toFixed(2)}
+                        </p>
+                        <p>
+                          <strong>Due:</strong> {due.toFixed(2)}
+                        </p>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium">Extra Discount</label>
-                        <Input
-                          type="number"
-                          min={0}
-                          value={values.extraDiscount}
-                          onChange={(e) => setFieldValue("extraDiscount", Number(e.target.value))}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium">Received Amount</label>
-                        <Input
-                          type="number"
-                          min={0}
-                          value={values.receivedAmount}
-                          onChange={(e) => setFieldValue("receivedAmount", Number(e.target.value))}
-                        />
-                      </div>
-
-                      <p>
-                        <strong>Discount Amount:</strong> {discountAmount.toFixed(2)}
-                      </p>
-                      <p>
-                        <strong>Total:</strong> {totalAmount.toFixed(2)}
-                      </p>
-                      <p>
-                        <strong>Due:</strong> {due.toFixed(2)}
-                      </p>
-                    </div>
-
-                    <Button type="primary" htmlType="submit" block size="large" loading={loading}>
-                      Submit Bill
-                    </Button>
-                  </Card>
-                </div>
-              </Form>
-            );
-          }}
-        </Formik>
-      </Card>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        block
+                        size="large"
+                        loading={loading}
+                      >
+                        Submit Bill
+                      </Button>
+                    </Card>
+                  </div>
+                </Form>
+              );
+            }}
+          </Formik>
+        </Card>
+      </div>
     </div>
   );
 };

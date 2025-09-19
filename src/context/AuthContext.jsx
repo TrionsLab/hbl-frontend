@@ -1,9 +1,10 @@
+import { TruckOutlined } from "@ant-design/icons";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -14,11 +14,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/newbill");
-    }
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     navigate("/newbill");
+  //   }
+  // }, [isAuthenticated]);
 
   const validate = () => {
     const newErrors = {};
