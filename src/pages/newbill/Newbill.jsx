@@ -7,6 +7,7 @@ import PatientDetailsForm from "../../components/newbill/PatientDetailsForm";
 import ReferenceSelector from "../../components/newbill/ReferenceSelector";
 import Test from "../../components/newbill/Test";
 import Navbar from "../../components/navbar/Navbar";
+import { createBill } from "../../api/billApi";
 
 const { Option } = Select;
 
@@ -30,7 +31,7 @@ const NewBillPage = () => {
     ageMonths: "",
     gender: "",
     patientId: null,
-    receptionisId: receptionistId,
+    receptionistId: receptionistId,
     billType: "Test",
     doctorReferralId: null,
     doctorReferralFee: 0,
@@ -64,46 +65,59 @@ const NewBillPage = () => {
     }
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     setLoading(true);
 
-    const grossAmount =
-      values.billType === "Test"
-        ? values.selectedTests.reduce(
-            (sum, test) => sum + Number(test.rate) * test.quantity,
-            0
-          )
-        : values.doctorFee;
+    try {
+      const grossAmount =
+        values.billType === "Test"
+          ? values.selectedTests.reduce(
+              (sum, test) => sum + Number(test.rate) * test.quantity,
+              0
+            )
+          : values.doctorFee;
 
-    const discountAmount = (grossAmount * values.discount) / 100;
-    const totalAmount = grossAmount - discountAmount - values.extraDiscount;
-    const due = totalAmount - values.receivedAmount;
+      const discountAmount = (grossAmount * values.discount) / 100;
+      const totalAmount = grossAmount - discountAmount - values.extraDiscount;
+      const due = totalAmount - values.receivedAmount;
 
-    const payload = {
-      idNo: `BILL-${new Date().getTime()}`, // unique id
-      date: new Date().toISOString().split("T")[0],
-      time: new Date().toLocaleTimeString("en-GB", { hour12: false }),
-      receptionistId,
-      billType: values.billType,
-      grossAmount,
-      discount: discountAmount,
-      extraDiscount: values.extraDiscount,
-      totalAmount,
-      receivedAmount: values.receivedAmount,
-      due,
-      doctorReferralId: values.doctorReferralId,
-      doctorReferralFee: values.doctorReferralFee,
-      pcReferralId: values.pcReferralId,
-      pcReferralFee: values.pcReferralFee,
-      selectedTests: values.billType === "Test" ? values.selectedTests : [],
-      visitedDoctorId: values.visitedDoctorId,
-      doctorFee: values.doctorFee,
-      patientId: values.patientId,
-    };
+      const payload = {
+        idNo: `BILL-${new Date().getTime()}`, // unique id
+        date: new Date().toISOString().split("T")[0],
+        time: new Date().toLocaleTimeString("en-GB", { hour12: false }),
+        receptionistId,
+        billType: values.billType,
+        grossAmount,
+        discount: discountAmount,
+        extraDiscount: values.extraDiscount,
+        totalAmount,
+        receivedAmount: values.receivedAmount,
+        due,
+        doctorReferralId: values.doctorReferralId,
+        doctorReferralFee: values.doctorReferralFee,
+        pcReferralId: values.pcReferralId,
+        pcReferralFee: values.pcReferralFee,
+        selectedTests: values.billType === "Test" ? values.selectedTests : [],
+        visitedDoctorId: values.visitedDoctorId,
+        doctorFee: values.doctorFee,
+        patientId: values.patientId,
+      };
 
-    console.log("Final Bill Payload:", payload);
-    message.success("Bill submitted successfully!");
-    setLoading(false);
+      console.log("Final Bill Payload:", payload);
+
+      // ✅ Call API
+      const response = await createBill(payload);
+
+      message.success("Bill submitted successfully!");
+      console.log("API Response:", response);
+
+      resetForm(); // optional: clear form after success
+    } catch (error) {
+      console.error("Error submitting bill:", error);
+      message.error(error.response?.data?.message || "Failed to submit bill");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

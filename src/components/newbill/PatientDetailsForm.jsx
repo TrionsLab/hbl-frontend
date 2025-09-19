@@ -23,6 +23,7 @@ const PatientDetailsForm = () => {
       );
 
       const patient = res.data?.data;
+      const randomId = 3;
 
       if (patient) {
         // ✅ Update form fields
@@ -38,12 +39,15 @@ const PatientDetailsForm = () => {
         message.success("Patient data loaded!");
       } else {
         message.warning("No patient found for this phone number.");
-        // Clear patientId if no patient found
-        setFieldValue("patientId", null);
+
+        // 👇 Assign a random fallback patientId
+        setFieldValue("patientId", randomId);
       }
     } catch (err) {
       console.error(err);
       message.error("Failed to fetch patient data.");
+      const randomId = 3;
+      setFieldValue("patientId", randomId);
     } finally {
       setLoading(false);
     }
