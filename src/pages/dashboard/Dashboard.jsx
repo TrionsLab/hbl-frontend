@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { archiveBill, clearBillDue, fetchBillsByDate } from "../../api/billApi";
 import BillsTable from "../../components/billsTable/BillsTable";
 import PrintableBill from "../../components/printreceipt/PrintableBill";
-import ReferralModal from "../../components/referralModal/ReferralModal";
+import ReferralModal from "../../components/referral/ReferralModal";
 import { formatToDDMMYY } from "../../helpers/commonHelpers";
 import SideNavbar from "../../components/common/SideNavbar";
 
