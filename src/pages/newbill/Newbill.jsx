@@ -43,6 +43,7 @@ const NewBillPage = () => {
     discount: 0,
     extraDiscount: 0,
     receivedAmount: 0,
+    isPatientFound: null,
   };
 
   const validationSchema = Yup.object().shape({
@@ -81,8 +82,9 @@ const NewBillPage = () => {
       const totalAmount = grossAmount - discountAmount - values.extraDiscount;
       const due = totalAmount - values.receivedAmount;
 
+      // ✅ Always send bill fields
       const payload = {
-        idNo: `BILL-${new Date().getTime()}`, // unique id
+        idNo: `BILL-${new Date().getTime()}`,
         date: new Date().toISOString().split("T")[0],
         time: new Date().toLocaleTimeString("en-GB", { hour12: false }),
         receptionistId,
@@ -101,17 +103,24 @@ const NewBillPage = () => {
         visitedDoctorId: values.visitedDoctorId,
         doctorFee: values.doctorFee,
         patientId: values.patientId,
+        isPatientFound: values.isPatientFound,
       };
+
+      // ✅ If patient is new, include details
+      if (!values.isPatientFound) {
+        payload.name = values.name;
+        payload.age = values.age;
+        payload.ageMonths = values.ageMonths;
+        payload.gender = values.gender;
+        payload.phone = values.phone;
+      }
 
       console.log("Final Bill Payload:", payload);
 
-      // ✅ Call API
-      const response = await createBill(payload);
+      await createBill(payload);
 
       message.success("Bill submitted successfully!");
-      console.log("API Response:", response);
-
-      resetForm(); // optional: clear form after success
+      resetForm();
     } catch (error) {
       console.error("Error submitting bill:", error);
       message.error(error.response?.data?.message || "Failed to submit bill");

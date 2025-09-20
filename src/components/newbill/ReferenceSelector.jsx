@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Select, Spin, InputNumber } from "antd";
 import axios from "axios";
 import PropTypes from "prop-types";
+import { getDoctors } from "../../api/doctorManagerApi";
+import { getPCs } from "../../api/pcManagerApi";
 
 const { Option } = Select;
 
@@ -24,8 +26,8 @@ const ReferenceSelector = ({
       try {
         setLoading(true);
         const [doctorRes, pcRes] = await Promise.all([
-          axios.get("http://localhost:3000/api/doctors"),
-          axios.get("http://localhost:3000/api/primary-care"),
+          getDoctors(),
+          getPCs(),
         ]);
         setDoctors(doctorRes.data.data || []);
         setPrimaryCare(pcRes.data.data || []);
