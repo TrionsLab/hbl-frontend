@@ -16,8 +16,8 @@ const Archive = () => {
     setLoading(true);
     setError("");
     try {
-      const data = await fetchArchivedBills();
-      setBills(Array.isArray(data) ? data : []);
+      const response = await fetchArchivedBills();
+      setBills(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (err) {
       console.error(err);
       setError(err.message || "Error fetching bills");

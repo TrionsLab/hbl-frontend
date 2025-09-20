@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import { Link } from "react-router-dom";
 import { archiveBill, clearBillDue, fetchBillsByDate } from "../../api/billApi";
 import BillsTable from "../../components/billsTable/BillsTable";
 import PrintableBill from "../../components/printreceipt/PrintableBill";
@@ -44,15 +43,19 @@ const Dashboard = () => {
   const [selectedReceptionist, setSelectedReceptionist] = useState("all");
 
   const receptionists = [
-    ...new Set(bills.map((bill) => bill.receptionist).filter(Boolean)),
+    ...new Map(
+      bills
+        .filter((b) => b.receptionist)
+        .map((b) => [b.receptionist.id, b.receptionist])
+    ).values(),
   ];
 
   const fetchBills = useCallback(async (date) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchBillsByDate(date.format("YYYY-MM-DD"));
-      setBills(Array.isArray(data) ? data : []);
+      const response = await fetchBillsByDate(date.format("YYYY-MM-DD"));
+      setBills(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (err) {
       setError(err.message || "Failed to fetch bills");
       setBills([]);
@@ -69,41 +72,65 @@ const Dashboard = () => {
     if (bill.archive) return false;
     if (selectedBillType !== "all" && bill.billType !== selectedBillType)
       return false;
+
+    // receptionist filter
     if (
       selectedReceptionist !== "all" &&
-      bill.receptionist !== selectedReceptionist
+      bill.receptionist?.id !== selectedReceptionist
     )
       return false;
+
     if (showOnlyDue && bill.due <= 0) return false;
     if (!searchTerm) return true;
 
+    const lowerSearch = searchTerm.toLowerCase();
+
     if (searchField === "all") {
-      return (
-        bill.id?.toString().includes(searchTerm) ||
-        bill.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        bill.phone?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      // flatten relevant fields into one string
+      const combinedFields = [
+        bill.idNo,
+        bill.billType,
+        bill.date,
+        bill.time,
+        bill.totalAmount,
+        bill.due,
+        bill.patient?.name,
+        bill.patient?.phone,
+        bill.receptionist?.username,
+        bill.receptionist?.email,
+        bill.visitedDoctor?.name,
+        bill.doctorReferral?.name,
+        bill.pcReferral?.name,
+      ]
+        .filter(Boolean) // remove undefined/null
+        .map((f) => f.toString().toLowerCase());
+
+      return combinedFields.some((field) => field.includes(lowerSearch));
+    } else if (searchField === "name") {
+      return bill.patient?.name?.toLowerCase().includes(lowerSearch);
+    } else if (searchField === "phone") {
+      return bill.patient?.phone?.toLowerCase().includes(lowerSearch);
     } else {
       return String(bill[searchField] || "")
         .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+        .includes(lowerSearch);
     }
   });
 
   // Stats
   const doctorEarnings = filteredBills.reduce((acc, bill) => {
-    if (bill.referralDoctorName) {
-      acc[bill.referralDoctorName] =
-        (acc[bill.referralDoctorName] || 0) +
-        Number(bill.referralDoctorFee || 0);
+    if (bill.doctorReferral?.name) {
+      acc[bill.doctorReferral.name] =
+        (acc[bill.doctorReferral.name] || 0) +
+        Number(bill.doctorReferralFee || 0);
     }
     return acc;
   }, {});
 
   const pcEarnings = filteredBills.reduce((acc, bill) => {
-    if (bill.referralPcName) {
-      acc[bill.referralPcName] =
-        (acc[bill.referralPcName] || 0) + Number(bill.referralPcFee || 0);
+    if (bill.pcReferral?.name) {
+      acc[bill.pcReferral.name] =
+        (acc[bill.pcReferral.name] || 0) + Number(bill.pcReferralFee || 0);
     }
     return acc;
   }, {});
@@ -291,8 +318,8 @@ const Dashboard = () => {
                 >
                   <Option value="all">All</Option>
                   {receptionists.map((r) => (
-                    <Option key={r} value={r}>
-                      {r}
+                    <Option key={r.id} value={r.id}>
+                      {r.username}
                     </Option>
                   ))}
                 </Select>
@@ -305,7 +332,7 @@ const Dashboard = () => {
                   style={{ width: "100%" }}
                 >
                   <Option value="all">All Fields</Option>
-                  <Option value="id">Bill ID</Option>
+                  <Option value="idNo">Bill ID</Option>
                   <Option value="name">Patient Name</Option>
                   <Option value="phone">Phone</Option>
                 </Select>

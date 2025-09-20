@@ -9,7 +9,7 @@ export const createBill = async (billData) => {
     billData,
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  return response;
 };
 
 export const clearBillDue = async (id, billData) => {
@@ -18,7 +18,7 @@ export const clearBillDue = async (id, billData) => {
     billData,
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  return response;
 };
 
 export const deleteBill = async (id) => {
@@ -26,7 +26,7 @@ export const deleteBill = async (id) => {
     `${API_BASE}/api/bills/deleteBill/${id}`,
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  return response;
 }
 
 
@@ -36,7 +36,7 @@ export const archiveBill = async (id) => {
     {},
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  return response;
 };
 
 export const restoreBill = async (id) => {
@@ -45,7 +45,7 @@ export const restoreBill = async (id) => {
     {},
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  return response;
 }
 
 
@@ -54,7 +54,7 @@ export const fetchBillsByDate = async (date) => {
     `${API_BASE}/api/bills?date=${date}`,
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  return response;
 };
 
 export const fetchArchivedBills = async () => {
@@ -62,7 +62,7 @@ export const fetchArchivedBills = async () => {
     `${API_BASE}/api/bills/archived`,
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  return response;
 };
 
 export const fetchMonthlyStats = async (month) => {
@@ -70,5 +70,5 @@ export const fetchMonthlyStats = async (month) => {
     `${API_BASE}/api/bills/stats?month=${month}`,
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  return response;
 };
