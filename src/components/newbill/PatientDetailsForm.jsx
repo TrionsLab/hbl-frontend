@@ -18,10 +18,9 @@ const PatientDetailsForm = () => {
 
     setLoading(true);
     try {
-      const res = await getPatientByPhone(values.phone)
+      const res = await getPatientByPhone(values.phone);
 
       const patient = res.data.data;
-      const randomId = 3;
 
       if (patient) {
         // ✅ Update form fields
@@ -30,7 +29,7 @@ const PatientDetailsForm = () => {
         setFieldValue("ageMonths", patient.ageMonths || "");
         setFieldValue("gender", patient.gender || "");
         setFieldValue("phone", patient.phone || "");
-        setFieldValue("isPatientFound", true)
+        setFieldValue("isPatientFound", true);
 
         // ✅ Most Important: set patientId
         setFieldValue("patientId", patient.id);
@@ -41,14 +40,12 @@ const PatientDetailsForm = () => {
 
         // 👇 Assign a random fallback patientId
         // setFieldValue("patientId", randomId);
-        setFieldValue("isPatientFound", false)
+        setFieldValue("isPatientFound", false);
       }
     } catch (err) {
       console.error(err);
       message.error("Failed to fetch patient data.");
-      const randomId = 3;
-      // setFieldValue("patientId", randomId);
-        setFieldValue("isPatientFound", false)
+      setFieldValue("isPatientFound", false);
     } finally {
       setLoading(false);
     }
