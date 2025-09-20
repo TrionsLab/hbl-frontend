@@ -1,7 +1,7 @@
 import { Button, Form, Input, message, Select } from "antd";
-import axios from "axios";
 import { useFormikContext } from "formik";
 import { useState } from "react";
+import { getPatientByPhone } from "../../api/patientApi";
 
 const { Option } = Select;
 
@@ -18,11 +18,9 @@ const PatientDetailsForm = () => {
 
     setLoading(true);
     try {
-      const res = await axios.get(
-        `http://localhost:3000/api/patient/${values.phone}`
-      );
+      const res = await getPatientByPhone(values.phone);
 
-      const patient = res.data?.data;
+      const patient = res.data.data;
 
       if (patient) {
         // ✅ Update form fields
@@ -31,6 +29,7 @@ const PatientDetailsForm = () => {
         setFieldValue("ageMonths", patient.ageMonths || "");
         setFieldValue("gender", patient.gender || "");
         setFieldValue("phone", patient.phone || "");
+        setFieldValue("isPatientFound", true);
 
         // ✅ Most Important: set patientId
         setFieldValue("patientId", patient.id);
@@ -38,12 +37,15 @@ const PatientDetailsForm = () => {
         message.success("Patient data loaded!");
       } else {
         message.warning("No patient found for this phone number.");
-        // Clear patientId if no patient found
-        setFieldValue("patientId", null);
+
+        // 👇 Assign a random fallback patientId
+        // setFieldValue("patientId", randomId);
+        setFieldValue("isPatientFound", false);
       }
     } catch (err) {
       console.error(err);
       message.error("Failed to fetch patient data.");
+      setFieldValue("isPatientFound", false);
     } finally {
       setLoading(false);
     }

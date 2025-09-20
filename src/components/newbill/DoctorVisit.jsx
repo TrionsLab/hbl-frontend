@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Select, Spin, InputNumber } from "antd";
 import axios from "axios";
 import PropTypes from "prop-types";
+import { getDoctors } from "../../api/doctorManagerApi";
 
 const { Option } = Select;
 
@@ -13,7 +14,7 @@ const DoctorVisit = ({ doctorValue, onDoctorChange, doctorFee, onDoctorFeeChange
     const fetchDoctors = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:3000/api/doctors");
+        const res = await getDoctors();
         setDoctors(res.data.data || []);
       } catch (err) {
         console.error("Error fetching doctors:", err);
