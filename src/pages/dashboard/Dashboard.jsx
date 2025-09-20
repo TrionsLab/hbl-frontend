@@ -172,13 +172,20 @@ const Dashboard = () => {
       content: `Are you sure you want to clear due of ${bill.due} Tk?`,
       onOk: async () => {
         try {
-          const updatedBill = await clearBillDue(bill.id, {
+          // Call API to clear due
+          await clearBillDue(bill.id, {
             ...bill,
             due: 0,
             paidAmount: bill.totalAmount,
           });
+
+          // Update state immediately
           setBills((prev) =>
-            prev.map((b) => (b.id === updatedBill.id ? updatedBill : b))
+            prev.map((b) =>
+              b.id === bill.id
+                ? { ...b, due: 0, paidAmount: bill.totalAmount }
+                : b
+            )
           );
         } catch (err) {
           Modal.error({ title: "Error", content: err.message });
