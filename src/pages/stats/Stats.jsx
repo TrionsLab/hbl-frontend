@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Layout, DatePicker, Button, Table, Card, Spin } from "antd";
+import { Layout, DatePicker, Button, Card, Spin, Row, Col } from "antd";
+import { Column } from "@ant-design/plots"; // Ant Design charts
 import SideNavbar from "../../components/common/SideNavbar";
 import { fetchMonthlyStats } from "../../api/billApi";
 import { jsPDF } from "jspdf";
@@ -23,16 +24,32 @@ const Stats = () => {
     setLoading(true);
     fetchMonthlyStats(month)
       .then((res) => {
-        setTotalMonthlyAmount(res.totalMonthlyAmount || 0);
-        setTotalByType(res.totalByType || []);
-        setDailyTotals(res.dailyTotals || []);
-        setDailyTotalsByType(res.dailyTotalsByType || []);
+        const data = res.data.data;
+        setTotalMonthlyAmount(Number(data.totalMonthlyAmount) || 0);
+        setTotalByType(
+          data.totalByType.map((t) => ({
+            ...t,
+            totalByType: Number(t.totalByType),
+          })) || []
+        );
+        setDailyTotals(
+          data.dailyTotals.map((d) => ({
+            ...d,
+            totalPerDay: Number(d.totalPerDay),
+          })) || []
+        );
+        setDailyTotalsByType(
+          data.dailyTotalsByType.map((d) => ({
+            ...d,
+            totalPerDayByType: Number(d.totalPerDayByType),
+          })) || []
+        );
       })
       .catch((err) => console.error("Failed to fetch stats", err))
       .finally(() => setLoading(false));
   }, [month]);
 
-  // Group dailyTotalsByType by day for easier rendering
+  // Group dailyTotalsByType by day for charts if needed
   const dailyByTypeMap = dailyTotalsByType.reduce((acc, curr) => {
     const day = curr.day;
     if (!acc[day]) acc[day] = [];
@@ -108,35 +125,38 @@ const Stats = () => {
     doc.save(`Monthly_Report_${month}.pdf`);
   };
 
-  const dailyColumns = [
-    {
-      title: "Date",
-      dataIndex: "day",
-      key: "day",
-      render: (d) => new Date(d).toLocaleDateString(),
-    },
-    {
-      title: "Total Amount (৳)",
-      dataIndex: "totalPerDay",
-      key: "totalPerDay",
-      align: "right",
-      render: (val) => val.toLocaleString(),
-    },
-  ];
+  // Chart configs
+  const dailyChartConfig = {
+    data: dailyTotals.map((d) => ({
+      date: new Date(d.day).toLocaleDateString(),
+      total: d.totalPerDay,
+    })),
+    xField: "date",
+    yField: "total",
+    label: { position: "middle", style: { fill: "#FFFFFF" } },
+    meta: { total: { alias: "Total Amount (৳)" } },
+    color: "#1890ff",
+  };
 
-  const dailyDataWithKey = dailyTotals.map((d, i) => ({ ...d, key: i }));
+  const typeChartConfig = {
+    data: totalByType.map((t) => ({ type: t.billType, total: t.totalByType })),
+    xField: "type",
+    yField: "total",
+    label: { position: "middle", style: { fill: "#FFFFFF" } },
+    meta: { total: { alias: "Total Amount (৳)" } },
+    color: "#52c41a",
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
       <SideNavbar />
-
       <Layout>
         <Content style={{ padding: "16px", overflow: "auto" }}>
           <div className="space-y-6">
             {/* Month Picker and Download PDF */}
             <div className="flex justify-between items-center mb-4">
               <DatePicker.MonthPicker
-                value={month ? dayjs(month, "YYYY-MM") : null} // ✅ use dayjs
+                value={month ? dayjs(month, "YYYY-MM") : null}
                 onChange={(date, dateString) => setMonth(dateString)}
                 format="YYYY-MM"
                 disabled={loading}
@@ -155,64 +175,81 @@ const Stats = () => {
                 <Spin size="large" tip="Loading stats..." />
               </div>
             ) : (
-              <div className="flex flex-col md:flex-row md:space-x-8">
-                {/* Left: Daily Totals Table */}
-                <div className="flex-1">
-                  <Card title="Daily Totals" bordered className="mb-4">
-                    <Table
-                      columns={dailyColumns}
-                      dataSource={dailyDataWithKey}
-                      pagination={false}
-                      expandable={{
-                        expandedRowRender: (record) => {
-                          const rows = (dailyByTypeMap[record.day] || []).map(
-                            ({ billType, totalPerDayByType }, idx) => (
-                              <div
-                                key={idx}
-                                className="flex justify-between py-1 border-b last:border-0"
-                              >
-                                <span>{billType || "Unknown"}</span>
-                                <span>
-                                  ৳{totalPerDayByType.toLocaleString()}
-                                </span>
-                              </div>
-                            )
-                          );
-                          return <div className="pl-4">{rows}</div>;
-                        },
-                      }}
-                    />
-                  </Card>
-                </div>
-
-                {/* Right: Summary Cards */}
-                <div className="md:w-80 flex flex-col space-y-4">
-                  <Card>
-                    <h3 className="text-lg font-bold mb-2">
-                      Total Sales for {month}
-                    </h3>
-                    <p className="text-2xl font-extrabold">
-                      ৳{totalMonthlyAmount.toLocaleString()}
-                    </p>
-                  </Card>
-
-                  {totalByType.map(({ billType, totalByType }, idx) => (
-                    <Card key={idx}>
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-sm text-gray-500">Bill Type</p>
-                          <p className="font-medium">{billType || "Unknown"}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">Total</p>
-                          <p className="font-semibold text-indigo-600">
-                            ৳{totalByType.toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
+              <div className="space-y-8">
+                <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    <Card title={`Daily Sales for ${month}`}>
+                      {dailyTotals.length > 0 ? (
+                        <Column {...dailyChartConfig} />
+                      ) : (
+                        <p className="text-center text-gray-400 py-12">
+                          No daily sales data found.
+                        </p>
+                      )}
                     </Card>
-                  ))}
-                </div>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Card title={`Sales by Bill Type for ${month}`}>
+                      {totalByType.length > 0 ? (
+                        <Column {...typeChartConfig} />
+                      ) : (
+                        <p className="text-center text-gray-400 py-12">
+                          No sales by type data found.
+                        </p>
+                      )}
+                    </Card>
+                  </Col>
+                </Row>
+
+                <Row gutter={16} className="mt-6">
+                  <Col xs={24} md={8}>
+                    <Card>
+                      <h3 className="text-lg font-bold mb-2">
+                        Total Sales for {month}
+                      </h3>
+                      {totalMonthlyAmount > 0 ? (
+                        <p className="text-2xl font-extrabold">
+                          ৳{totalMonthlyAmount.toLocaleString()}
+                        </p>
+                      ) : (
+                        <p className="text-gray-400">
+                          No total sales data found.
+                        </p>
+                      )}
+                    </Card>
+                  </Col>
+
+                  {totalByType.length > 0 ? (
+                    totalByType.map(({ billType, totalByType }, idx) => (
+                      <Col xs={24} md={8} key={idx}>
+                        <Card>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-sm text-gray-500">Bill Type</p>
+                              <p className="font-medium">
+                                {billType || "Unknown"}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-500">Total</p>
+                              <p className="font-semibold text-indigo-600">
+                                ৳{totalByType.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </Card>
+                      </Col>
+                    ))
+                  ) : (
+                    <Col xs={24} md={8}>
+                      <Card>
+                        <p className="text-center text-gray-400 py-6">
+                          No bill type data found.
+                        </p>
+                      </Card>
+                    </Col>
+                  )}
+                </Row>
               </div>
             )}
           </div>
