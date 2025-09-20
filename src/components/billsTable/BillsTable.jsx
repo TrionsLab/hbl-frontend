@@ -1,8 +1,4 @@
-import { Pagination } from "antd";
-import { useState } from "react";
-import deleteIcon from "/assets/delete.png";
-import printIcon from "/assets/printer.png";
-import { getUserRoleFromLocalStorage } from "../../helpers/authHelpers";
+import { Table, Button, Tag } from "antd";
 
 const BillsTable = ({
   bills,
@@ -11,233 +7,106 @@ const BillsTable = ({
   handleArchive,
   printBill,
 }) => {
-  const userRole = getUserRoleFromLocalStorage()?.role;
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 20;
-
-  // Slice bills for pagination
-  const paginatedBills = bills
-    .filter((bill) => !bill.archive)
-    .slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const columns = [
+    {
+      title: "Bill ID",
+      dataIndex: "id",
+      key: "id",
+      render: (text) => <strong>{text}</strong>,
+    },
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (date) => formatToDDMMYY(date),
+    },
+    {
+      title: "Patient",
+      key: "patient",
+      render: (_, record) => (
+        <div>
+          <div>
+            <strong>{record.patient?.name || "N/A"}</strong>
+          </div>
+          <div>{record.patient?.phone || ""}</div>
+        </div>
+      ),
+    },
+    {
+      title: "Receptionist",
+      key: "receptionist",
+      render: (_, record) => record.receptionist?.username || "N/A",
+    },
+    {
+      title: "Visited Doctor",
+      key: "visitedDoctor",
+      render: (_, record) => record.visitedDoctor?.name || "—",
+    },
+    {
+      title: "Referral Doctor",
+      key: "doctorReferral",
+      render: (_, record) => record.doctorReferral?.name || "—",
+    },
+    {
+      title: "Referral PC",
+      key: "pcReferral",
+      render: (_, record) => record.pcReferral?.name || "—",
+    },
+    {
+      title: "Total (৳)",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      render: (amt) => <strong>{Number(amt).toFixed(2)}</strong>,
+    },
+    {
+      title: "Due (৳)",
+      dataIndex: "due",
+      key: "due",
+      render: (due) =>
+        due > 0 ? (
+          <Tag color="red">{Number(due).toFixed(2)}</Tag>
+        ) : (
+          <Tag color="green">Cleared</Tag>
+        ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+          <Button size="small" onClick={() => printBill(record)}>
+            🖨️ Print
+          </Button>
+          {record.due > 0 && (
+            <Button
+              size="small"
+              type="primary"
+              onClick={() => handleClearDue(record)}
+            >
+              Clear Due
+            </Button>
+          )}
+          {!record.archive && (
+            <Button
+              size="small"
+              danger
+              onClick={() => handleArchive(record.id)}
+            >
+              Archive
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="overflow-x-auto">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 border border-gray-200 text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200 w-24">
-                ID
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200 w-28">
-                Date/Time
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200 w-40">
-                Patient
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200 w-40">
-                Receptionist
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200 w-32">
-                Doctor
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200 w-40">
-                Referrals
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200 w-32">
-                Bill Details
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200 w-32">
-                Payment Status
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider  w-24">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedBills.map((bill) => (
-              <tr key={bill.id} className="hover:bg-gray-50">
-                {/* --- all your existing cells remain unchanged --- */}
-                <td className="px-3 py-2 border-r border-gray-200">
-                  <div
-                    className="font-medium text-gray-900 truncate"
-                    title={bill.id}
-                  >
-                    {bill.id}
-                  </div>
-                  <div className="text-gray-600 text-xs">{bill.billType}</div>
-                </td>
-
-                <td className="px-3 py-2 border-r border-gray-200">
-                  <div className="font-medium text-gray-900">
-                    {formatToDDMMYY(bill.date)}
-                  </div>
-                  <div className="text-gray-600 text-xs">{bill.time}</div>
-                </td>
-
-                <td className="px-3 py-2 border-r border-gray-200">
-                  <div
-                    className="font-medium text-gray-900 truncate"
-                    title={bill.name}
-                  >
-                    {bill.name}
-                  </div>
-                  <div className="text-gray-600 text-xs">
-                    {bill.age} yrs
-                    {bill.ageMonths ? `, ${bill.ageMonths} mos` : ""} |{" "}
-                    {bill.gender} <br />
-                    <span className="font-medium">Phone:</span> {bill.phone}
-                  </div>
-                </td>
-
-                <td className="px-3 py-2 border-r border-gray-200">
-                  <div
-                    className="font-medium text-gray-900 truncate"
-                    title={bill.receptionist}
-                  >
-                    {bill.receptionist}
-                  </div>
-                </td>
-
-                <td className="px-3 py-2 border-r border-gray-200">
-                  <div className="text-gray-900 truncate" title={bill.doctor}>
-                    {bill.doctor && bill.doctor.length > 0
-                      ? bill.doctor.length > 20
-                        ? `${bill.doctor.substring(0, 20)}...`
-                        : bill.doctor
-                      : "-"}
-                  </div>
-                </td>
-
-                <td className="px-3 py-2 border-r border-gray-200">
-                  {bill.referralDoctorName && (
-                    <div className="mb-1">
-                      <span className="font-medium text-gray-700 text-xs">
-                        Dr:
-                      </span>{" "}
-                      <span
-                        className="text-gray-900 truncate"
-                        title={bill.referralDoctorName}
-                      >
-                        {bill.referralDoctorName.length > 20
-                          ? `${bill.referralDoctorName.substring(0, 20)}...`
-                          : bill.referralDoctorName}
-                      </span>{" "}
-                      <span className="text-gray-600 text-xs">
-                        (৳{bill.referralDoctorFee})
-                      </span>
-                    </div>
-                  )}
-                  {bill.referralPcName && (
-                    <div>
-                      <span className="font-medium text-gray-700 text-xs">
-                        PC:
-                      </span>{" "}
-                      <span
-                        className="text-gray-900 truncate"
-                        title={bill.referralPcName}
-                      >
-                        {bill.referralPcName.length > 20
-                          ? `${bill.referralPcName.substring(0, 20)}...`
-                          : bill.referralPcName}
-                      </span>{" "}
-                      <span className="text-gray-600 text-xs">
-                        (৳{bill.referralPcFee})
-                      </span>
-                    </div>
-                  )}
-                  {!bill.referralDoctorName && !bill.referralPcName && "-"}
-                </td>
-
-                <td className="px-3 py-2 border-r border-gray-200">
-                  <div className="space-y-1 text-xs">
-                    <div>
-                      <span className="text-gray-700">Gross:</span>{" "}
-                      <span className="text-gray-900">৳{bill.grossAmount}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-700">Total Discount:</span> ৳{" "}
-                      {(
-                        (Number(bill.grossAmount || 0) *
-                          Number(bill.discount || 0)) /
-                          100 +
-                        Number(bill.extraDiscount || 0)
-                      ).toFixed(2)}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-gray-900">
-                        Due: ৳{bill.due}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-semibold text-gray-900">
-                        Total: ৳{bill.totalAmount}
-                      </span>
-                    </div>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="text-center">
-                    {bill.due > 0 ? (
-                      <>
-                        <div className="badge font-medium badge-warning">
-                          {bill.due} Tk Due
-                        </div>
-                        <br />
-                        {userRole === "admin" ? (
-                          <button
-                            onClick={() => handleClearDue(bill)}
-                            className="underline text-blue-600 hover:text-blue-800 text-xs font-medium mt-2"
-                          >
-                            Clear Due
-                          </button>
-                        ) : null}
-                      </>
-                    ) : (
-                      <div className="badge badge-success text-white">Paid</div>
-                    )}
-                  </div>
-                </td>
-
-                <td className="px-3 py-2">
-                  <div className="flex justify-around gap-x-2">
-                    <button
-                      onClick={() => printBill(bill)}
-                      className="text-green-600 hover:text-green-800 flex items-center text-xs font-medium"
-                      title="Print Bill"
-                    >
-                      <img width={22} src={printIcon} alt="" />
-                    </button>
-
-                    {userRole === "admin" ? (
-                      <button
-                        onClick={() => handleArchive(bill.id)}
-                        className="text-red-600 hover:text-red-800 flex items-center text-xs font-medium"
-                      >
-                        <img width={22} src={deleteIcon} alt="" />
-                      </button>
-                    ) : null}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Pagination controls */}
-        <div className="flex justify-center py-4">
-          <Pagination
-            current={currentPage}
-            pageSize={pageSize}
-            total={bills.filter((bill) => !bill.archive).length}
-            onChange={(page) => setCurrentPage(page)}
-            showSizeChanger={false}
-          />
-        </div>
-      </div>
-    </div>
+    <Table
+      rowKey="id"
+      columns={columns}
+      dataSource={bills}
+      pagination={{ pageSize: 10 }}
+    />
   );
 };
 

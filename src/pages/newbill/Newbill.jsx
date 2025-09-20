@@ -180,7 +180,7 @@ const NewBillPage = () => {
                             className="w-full"
                           >
                             <Option value="Test">Test</Option>
-                            <Option value="Consultancy">Consultancy</Option>
+                            <Option value="Doctor Visit">Doctor Visit</Option>
                           </Select>
                         </div>
 
@@ -239,7 +239,7 @@ const NewBillPage = () => {
                       </Card>
                     )}
 
-                    {values.billType === "Consultancy" && (
+                    {values.billType === "Doctor Visit" && (
                       <Card className="border-gray-200 rounded-xl">
                         <h3 className="text-lg font-semibold">Doctor Visit</h3>
                         <DoctorVisit
